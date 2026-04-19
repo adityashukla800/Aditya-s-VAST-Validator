@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aditya's VAST Tag Validator</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- SheetJS for Excel parsing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg:#0a0c10;--surface:#111318;--surface2:#1a1d25;--border:#252830;
+  --accent:#00e5ff;--accent2:#ff4d6d;--warn:#ffb300;--text:#e8eaf0;
+  --muted:#6b7280;--pass:#b9ff66;--fail:#ff4d6d;--info:#00e5ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:0 0 80px;}
+
+/* ─ Header ─ */
+header{border-bottom:1px solid var(--border);padding:18px 32px;display:flex;align-items:center;gap:14px;position:sticky;top:0;background:rgba(10,12,16,.96);backdrop-filter:blur(14px);z-index:100;}
+.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#000;flex-shrink:0;}
+.logo-text{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.04em;}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+.header-badge{margin-left:auto;background:rgba(255,77,109,.13);border:1px solid rgba(255,77,109,.3);color:var(--accent2);font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase;}
+
+/* ─ Tabs ─ */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);padding:0 32px;background:var(--surface);overflow-x:auto;}
+.tab-btn{padding:13px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ─ Layout ─ */
+.container{max-width:1100px;margin:0 auto;padding:32px 24px 0;}
+.hero{margin-bottom:24px;}
+.hero h1{font-family:'Space Mono',monospace;font-size:clamp(18px,3.5vw,28px);font-weight:700;line-height:1.2;margin-bottom:8px;}
+.hero h1 span{color:var(--accent);}
+.hero p{color:var(--muted);font-size:13px;line-height:1.7;max-width:600px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;line-height:1.7;padding:13px;resize:vertical;min-height:140px;outline:none;transition:border-color .2s;}
+textarea:focus{border-color:var(--accent);}
+textarea::placeholder{color:var(--muted);}
+
+/* ─ Buttons ─ */
+.actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-primary:hover{background:#33eaff;transform:translateY(-1px);}
+.btn-secondary{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+.btn-secondary:hover{color:var(--text);border-color:var(--muted);}
+.btn-green{background:rgba(185,255,102,.15);color:var(--pass);border:1px solid rgba(185,255,102,.3);}
+.btn-green:hover{background:rgba(185,255,102,.25);}
+
+/* ─ Allowlist ─ */
+.list-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.list-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.list-count{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:10px;padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;}
+.chevron{transition:transform .2s;font-size:11px;color:var(--muted);}
+.chevron.open{transform:rotate(180deg);}
+.list-body{display:none;margin-top:16px;}
+.list-body.open{display:block;}
+.tag-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.tag-pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid rgba(185,255,102,.3);border-radius:6px;padding:3px 10px;font-size:11px;font-family:'Space Mono',monospace;color:var(--pass);}
+.tag-pill .remove{cursor:pointer;color:var(--muted);font-size:14px;transition:color .15s;}
+.tag-pill .remove:hover{color:var(--fail);}
+.list-add{display:flex;gap:8px;}
+.list-add input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;padding:7px 12px;outline:none;transition:border-color .2s;}
+.list-add input:focus{border-color:var(--accent);}
+.list-add input::placeholder{color:var(--muted);}
+
+/* ─ Single tag: wrapper inner box ─ */
+.wrapper-inner-box{display:none;margin-top:14px;background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.2);border-radius:12px;padding:16px;}
+.wrapper-inner-box.visible{display:block;}
+.wrapper-inner-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--info);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.wil-badge{background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.25);color:var(--info);padding:2px 8px;border-radius:20px;font-size:9px;}
+
+/* ─ Reject banner ─ */
+.reject-banner{display:none;background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.35);border-radius:12px;padding:14px 18px;margin-bottom:16px;color:var(--fail);font-size:13px;font-weight:600;line-height:1.6;}
+.reject-banner.visible{display:flex;align-items:flex-start;gap:12px;}
+.reject-banner code{font-family:'Space Mono',monospace;font-size:12px;background:rgba(255,77,109,.15);padding:1px 6px;border-radius:4px;}
+
+/* ─ Single tag results ─ */
+#singleResults{display:none;}
+.results-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.score-ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;border:3px solid var(--border);flex-shrink:0;}
+.score-num{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;line-height:1;}
+.score-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.results-meta h2{font-family:'Space Mono',monospace;font-size:14px;margin-bottom:3px;}
+.results-meta p{font-size:12px;color:var(--muted);}
+.summary-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.summary-pill{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;}
+.dot{width:7px;height:7px;border-radius:50%;}
+.section-heading{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;display:flex;align-items:center;gap:10px;}
+.section-heading::after{content:'';flex:1;height:1px;background:var(--border);}
+.checks-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+.check-item{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 14px;display:flex;align-items:flex-start;gap:11px;}
+.check-item.pass{border-left:3px solid var(--pass);}
+.check-item.fail{border-left:3px solid var(--fail);}
+.check-item.warn{border-left:3px solid var(--warn);}
+.check-item.info{border-left:3px solid var(--info);}
+.check-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px;}
+.pass .check-icon{background:rgba(185,255,102,.12);color:var(--pass);}
+.fail .check-icon{background:rgba(255,77,109,.12);color:var(--fail);}
+.warn .check-icon{background:rgba(255,179,0,.12);color:var(--warn);}
+.info .check-icon{background:rgba(0,229,255,.12);color:var(--info);}
+.check-content{flex:1;}
+.check-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+.check-detail{font-size:11px;color:var(--muted);line-height:1.6;font-family:'Space Mono',monospace;word-break:break-all;}
+.check-suggestion{margin-top:7px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:12px;line-height:1.6;}
+.check-suggestion strong{color:var(--warn);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.wrapper-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:14px;}
+.wrapper-title{font-size:11px;font-weight:700;color:var(--info);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em;}
+.steps{display:flex;flex-direction:column;gap:9px;}
+.step{display:flex;gap:11px;align-items:flex-start;}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(0,229,255,.09);border:1px solid rgba(0,229,255,.22);color:var(--info);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-text{font-size:13px;line-height:1.6;padding-top:1px;}
+.step-text code{background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);}
+
+/* ─ Bulk tab ─ */
+.bulk-mode-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;width:fit-content;}
+.mode-btn{padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:var(--surface2);color:var(--muted);font-family:'DM Sans',sans-serif;transition:all .15s;}
+.mode-btn.active{background:var(--accent);color:#000;}
+
+/* Drop zone */
+.dropzone{border:2px dashed var(--border);border-radius:12px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--accent);background:rgba(0,229,255,.04);}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.dz-icon{font-size:32px;margin-bottom:10px;}
+.dz-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.dz-sub{font-size:12px;color:var(--muted);}
+.dz-file-name{margin-top:10px;font-size:12px;color:var(--accent);font-family:'Space Mono',monospace;}
+
+/* Column picker */
+.col-picker{display:none;margin-top:14px;}
+.col-picker.visible{display:block;}
+.col-picker-label{font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;}
+.col-chips{display:flex;flex-wrap:wrap;gap:7px;}
+.col-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .15s;}
+.col-chip:hover{border-color:var(--accent);color:var(--accent);}
+.col-chip.selected{background:rgba(0,229,255,.12);border-color:var(--accent);color:var(--accent);}
+.col-chip.auto{border-color:rgba(185,255,102,.4);color:var(--pass);}
+
+/* Progress bar */
+.progress-wrap{display:none;margin-top:14px;}
+.progress-wrap.visible{display:block;}
+.progress-bar-bg{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.progress-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .2s;width:0%;}
+.progress-label{font-size:11px;color:var(--muted);margin-top:6px;font-family:'Space Mono',monospace;}
+
+/* Bulk results table */
+#bulkResults{display:none;margin-top:6px;}
+.bulk-summary-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+
+.bulk-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead tr{background:var(--surface2);}
+th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.tr-pass td:first-child{border-left:3px solid var(--pass);}
+.tr-fail td:first-child{border-left:3px solid var(--fail);}
+.tr-warn td:first-child{border-left:3px solid var(--warn);}
+.tr-reject td:first-child{border-left:3px solid var(--fail);background:rgba(255,77,109,.04);}
+
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.sb-pass{background:rgba(185,255,102,.12);color:var(--pass);border:1px solid rgba(185,255,102,.25);}
+.sb-fail{background:rgba(255,77,109,.12);color:var(--fail);border:1px solid rgba(255,77,109,.25);}
+.sb-warn{background:rgba(255,179,0,.12);color:var(--warn);border:1px solid rgba(255,179,0,.25);}
+.sb-reject{background:rgba(255,77,109,.18);color:var(--fail);border:1px solid rgba(255,77,109,.4);}
+
+.fail-list{display:flex;flex-direction:column;gap:3px;}
+.fail-item{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+.fail-item.f{color:var(--fail);}
+.fail-item.w{color:var(--warn);}
+
+.tag-preview{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.score-cell{font-family:'Space Mono',monospace;font-weight:700;}
+
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.table-search{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 12px;outline:none;transition:border-color .2s;width:220px;}
+.table-search:focus{border-color:var(--accent);}
+.filter-btns{display:flex;gap:6px;}
+.filter-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .15s;}
+.filter-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* Proposal tab */
+.proposal-grid{display:flex;flex-direction:column;gap:16px;}
+.proposal-block{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;}
+.proposal-block h3{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+.proposal-block p,.proposal-block li{font-size:13px;color:#c5c8d2;line-height:1.75;}
+.proposal-block ul{padding-left:18px;display:flex;flex-direction:column;gap:5px;}
+.proposal-block li::marker{color:var(--accent);}
+.outcome-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:560px){.outcome-grid{grid-template-columns:1fr;}}
+.outcome-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;}
+.oc-icon{font-size:18px;margin-bottom:5px;}
+.oc-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.oc-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.who-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.who-pill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;}
+.urgency-bar{background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.25);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--warn);line-height:1.65;}
+.sf{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);}
+.sf:last-child{border-bottom:none;}
+.sf-num{width:20px;height:20px;border-radius:50%;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.2);color:var(--info);font-size:10px;font-weight:700;font-family:'Space Mono',monospace;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.sf-text{font-size:13px;color:#c5c8d2;line-height:1.65;}
+
+@media(max-width:640px){header{padding:14px 16px;}.tab-bar{padding:0 14px;}.container{padding:20px 14px 0;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">VV</div>
+  <div>
+    <div class="logo-text">Aditya's VAST Validator</div>
+    <div class="logo-sub">VAST 2.0 · Allowlist · Bulk · Wrapper</div>
+  </div>
+  <div class="header-badge">Internal Tool</div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('single',this)">⚡ Single Tag</button>
+  <button class="tab-btn" onclick="switchTab('bulk',this)">📦 Bulk Validate</button>
+  <button class="tab-btn" onclick="switchTab('proposal',this)">📋 Feature Proposal</button>
+</div>
+
+<!-- ══════════════════ SHARED ALLOWLIST (rendered per tab) ══════════════════ -->
+<!-- Allowlist card is injected into each tab dynamically via JS -->
+
+<!-- ══════════════════ SINGLE TAG TAB ══════════════════ -->
+<div id="tab-single" class="tab-panel active">
+<div class="container">
+  <div class="hero">
+    <h1>Single Tag <span>Validator</span></h1>
+    <p>Paste one VAST 2.0 tag for deep validation — version enforcement, allowlist, wrapper encoding, and creative spec checks.</p>
+  </div>
+
+  <div id="allowlist-single" class="card"></div>
+
+  <div class="card">
+    <div class="section-label">Step 1 — Paste Outer VAST Tag (XML)</div>
+    <textarea id="tagInput" placeholder="Paste your VAST 2.0 tag XML here...&#10;&#10;&lt;VAST version=&quot;2.0&quot;&gt;...&lt;/VAST&gt;&#10;&#10;Tags with version 3.0 or 4.0 will be hard-rejected."></textarea>
+    <div class="wrapper-inner-box" id="wrapperInnerBox">
+      <div class="wrapper-inner-label">🔗 Wrapper Detected — Paste Inner Tag <span class="wil-badge">Step 2</span></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Paste the resolved inner VAST tag so the validator can check the <strong>1080×1920</strong> creative and domain compliance.</p>
+      <textarea id="innerTagInput" style="min-height:110px;" placeholder="Paste the resolved inner VAST tag XML here..."></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="validateSingle()">⚡ Validate</button>
+      <button class="btn btn-secondary" onclick="loadSample('wrapper')">Sample: Wrapper</button>
+      <button class="btn btn-secondary" onclick="loadSample('inline')">Sample: Bad Inline</button>
+      <button class="btn btn-secondary" onclick="clearSingle()">Clear</button>
+    </div>
+  </div>
+
+  <div class="reject-banner" id="rejectBanner">
+    <div style="font-size:20px;flex-shrink:0;">🚫</div>
+    <div id="rejectMsg"></div>
+  </div>
+
+  <div id="singleResults">
+    <div class="results-header">
+      <div class="score-ring" id="scoreRing"><span class="score-num" id="scoreNum">-</span><span class="score-label">Score</span></div>
+      <div class="results-meta"><h2 id="resultTitle"></h2><p id="resultSubtitle"></p></div>
+    </div>
+    <div class="summary-bar" id="summaryBar"></div>
+    <div class="section-heading">Outer Tag Checks</div>
+    <div class="checks-grid" id="outerChecksGrid"></div>
+    <div id="wrapperChecksSection" style="display:none;">
+      <div class="section-heading">Wrapper-Specific Checks</div>
+      <div class="checks-grid" id="wrapperChecksGrid"></div>
+      <div class="section-heading">Inner Tag Checks (Creative Spec)</div>
+      <div class="checks-grid" id="innerChecksGrid"></div>
+    </div>
+    <div id="wrapperStepsSection"></div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════ BULK VALIDATE TAB ══════════════════ -->
+<div id="tab-bulk" class="tab-panel">
+<div class="container">
+  <div class="hero">
+    <h1>Bulk <span>Validator</span></h1>
+    <p>Upload a CSV/Excel file with VAST tags in any column — the tool auto-detects which column contains tags. Or paste tags directly, one per line.</p>
+  </div>
+
+  <div id="allowlist-bulk" class="card"></div>
+
+  <!-- Mode toggle -->
+  <div class="card">
+    <div class="section-label">Input Mode</div>
+    <div class="bulk-mode-toggle">
+      <button class="mode-btn active" id="modeFileBtn" onclick="setBulkMode('file')">📂 Upload File (CSV / Excel)</button>
+      <button class="mode-btn" id="modePasteBtn" onclick="setBulkMode('paste')">📋 Paste Tags</button>
+    </div>
+
+    <!-- File upload mode -->
+    <div id="fileMode">
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="handleFile(this.files[0])">
+        <div class="dz-icon">📄</div>
+        <div class="dz-title">Drop your CSV or Excel file here</div>
+        <div class="dz-sub">or click to browse · Supports .csv, .xlsx, .xls</div>
+        <div class="dz-file-name" id="dzFileName"></div>
+      </div>
+
+      <div class="col-picker" id="colPicker">
+        <div class="col-picker-label">Select column containing VAST tags — auto-detected columns highlighted in green</div>
+        <div class="col-chips" id="colChips"></div>
+      </div>
+    </div>
+
+    <!-- Paste mode -->
+    <div id="pasteMode" style="display:none;">
+      <textarea id="bulkPasteInput" style="min-height:180px;" placeholder="Paste VAST tags here — one per line.&#10;&#10;You can paste:&#10;• Raw XML:  &lt;VAST version=&quot;2.0&quot;&gt;...&lt;/VAST&gt;&#10;• VAST URLs:  https://adserver.example.com/vast?id=123&#10;• Mixed — the tool handles both"></textarea>
+    </div>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">Processing…</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="runBulkValidation()">⚡ Validate All</button>
+      <button class="btn btn-green" onclick="exportCSV()" id="exportBtn" style="display:none;">⬇ Export Results CSV</button>
+      <button class="btn btn-secondary" onclick="clearBulk()">Clear</button>
+    </div>
+  </div>
+
+  <!-- Bulk results -->
+  <div id="bulkResults">
+    <div class="table-toolbar">
+      <div class="filter-btns">
+        <button class="filter-btn active" onclick="filterTable('all',this)">All</button>
+        <button class="filter-btn" onclick="filterTable('fail',this)">❌ Failed</button>
+        <button class="filter-btn" onclick="filterTable('warn',this)">⚠ Warnings</button>
+        <button class="filter-btn" onclick="filterTable('pass',this)">✓ Passed</button>
+        <button class="filter-btn" onclick="filterTable('reject',this)">🚫 Rejected</button>
+      </div>
+      <input class="table-search" type="text" id="tableSearch" placeholder="Search tags…" oninput="filterTable('search',null)">
+    </div>
+    <div class="bulk-summary-bar" id="bulkSummaryBar"></div>
+    <div class="bulk-table-wrap">
+      <table id="bulkTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tag Preview</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th>VAST Ver</th>
+            <th>Wrapper</th>
+            <th>Dimensions</th>
+            <th>Issues Found</th>
+          </tr>
+        </thead>
+        <tbody id="bulkTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════ PROPOSAL TAB ══════════════════ -->
+<div id="tab-proposal" class="tab-panel">
+<div class="container">
+  <div class="hero">
+    <h1>Feature <span>Proposal</span></h1>
+    <p>Internal request document — Automated VAST Tag Validation &amp; Data Safety Checker.</p>
+  </div>
+  <div class="proposal-grid">
+    <div class="proposal-block">
+      <h3>Feature Name</h3>
+      <p style="font-size:15px;font-weight:600;color:var(--text);">Automated VAST Tag Validation &amp; Data Safety Checker</p>
+    </div>
+    <div class="proposal-block">
+      <h3>Problem Statement</h3>
+      <p style="margin-bottom:12px;">VAST tag validation today is heavily manual and dependent on individual technical expertise. In a cross-device setup, this creates a significant bottleneck for AMs and Ad-Ops as scale increases.</p>
+      <ul>
+        <li>Non-compliant VAST tags are occasionally approved despite failing internal checks</li>
+        <li>Real risk of unauthorized data sharing with non-approved third-party vendors</li>
+        <li>Ad rendering failures and broken client-side measurement</li>
+        <li>Cross-device validations consume disproportionate AM time and slow launches</li>
+      </ul>
+    </div>
+    <div class="proposal-block">
+      <h3>Proposed Feature</h3>
+      <div>
+        <div class="sf"><div class="sf-num">1</div><div class="sf-text">Hard-enforce VAST 2.0 — any other version is immediately rejected</div></div>
+        <div class="sf"><div class="sf-num">2</div><div class="sf-text">Domain allowlist — any unknown domain in the tag is flagged as a violation</div></div>
+        <div class="sf"><div class="sf-num">3</div><div class="sf-text">Wrapper detection — validate URI encoding, trace inner tag, check 1080×1920 creative compliance</div></div>
+        <div class="sf"><div class="sf-num">4</div><div class="sf-text">Bulk validation — upload a sheet with hundreds of tags and get a full compliance report in seconds</div></div>
+      </div>
+    </div>
+    <div class="proposal-block">
+      <h3>Impact</h3>
+      <div class="outcome-grid">
+        <div class="outcome-card"><div class="oc-icon">🚀</div><div class="oc-title">Near-Zero TAT</div><div class="oc-desc">Manual validation eliminated. Cross-device approvals near-instant.</div></div>
+        <div class="outcome-card"><div class="oc-icon">⏱</div><div class="oc-title">AM Time Savings</div><div class="oc-desc">Hours of rechecking removed. Capacity freed for strategy.</div></div>
+        <div class="outcome-card"><div class="oc-icon">❌</div><div class="oc-title">Data Risk Reduced</div><div class="oc-desc">No accidental approval of unapproved vendor pixels.</div></div>
+        <div class="outcome-card"><div class="oc-icon">💰</div><div class="oc-title">Revenue Impact</div><div class="oc-desc">Faster go-lives, less rework, scale without headcount.</div></div>
+      </div>
+    </div>
+    <div class="proposal-block">
+      <h3>Who Benefits</h3>
+      <div class="who-grid">
+        <div class="who-pill">⚙️ Ad-Ops</div><div class="who-pill">📊 CSMs / AMs</div>
+        <div class="who-pill">🤝 Clients</div><div class="who-pill">📈 Business</div>
+      </div>
+    </div>
+    <div class="proposal-block">
+      <h3>Urgency</h3>
+      <div class="urgency-bar">⚠️ <strong>Must-Have.</strong> Data integrity is non-negotiable. This is essential to support scale without increasing operational cost or risk.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+// ALLOWLIST
+// ════════════════════════════════════════════════════
+let allowedDomains = [
+  'cdn.example.com','adserver.example.com',
+  'track.myplatform.com','measure.internalads.com',
+  'pixel.approvedvendor.com'
+];
+
+function renderAllowlistInto(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = `
+    <div class="list-header" onclick="toggleList('${containerId}')">
+      <div class="list-title">✅ Approved Domain Allowlist <span class="list-count" id="ac-${containerId}">${allowedDomains.length}</span></div>
+      <span class="chevron" id="ch-${containerId}">▼</span>
+    </div>
+    <div class="list-body" id="lb-${containerId}">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Any domain in a tag that is <strong style="color:var(--fail)">not</strong> on this list is flagged as a violation.</p>
+      <div class="tag-grid" id="tg-${containerId}"></div>
+      <div class="list-add">
+        <input type="text" id="ai-${containerId}" placeholder="e.g. trustedtracker.com" onkeydown="if(event.key==='Enter')addAllowed('${containerId}')"/>
+        <button class="btn btn-secondary" onclick="addAllowed('${containerId}')">+ Add</button>
+      </div>
+    </div>`;
+  renderAllowedPills(containerId);
+}
+
+function renderAllowedPills(containerId) {
+  const grid = document.getElementById('tg-'+containerId);
+  if (!grid) return;
+  grid.innerHTML = allowedDomains.map((d,i) =>
+    `<div class="tag-pill">${d}<span class="remove" onclick="removeAllowed(${i})">×</span></div>`
+  ).join('');
+  ['allowlist-single','allowlist-bulk'].forEach(id => {
+    const c = document.getElementById('ac-'+id);
+    if (c) c.textContent = allowedDomains.length;
+  });
+}
+
+function toggleList(containerId) {
+  const lb = document.getElementById('lb-'+containerId);
+  const ch = document.getElementById('ch-'+containerId);
+  lb.classList.toggle('open');
+  ch.classList.toggle('open');
+  if (lb.classList.contains('open')) renderAllowedPills(containerId);
+}
+
+function addAllowed(containerId) {
+  const input = document.getElementById('ai-'+containerId);
+  const val = input.value.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
+  if (val && !allowedDomains.includes(val)) { allowedDomains.push(val); renderAllowedPills(containerId); }
+  input.value = '';
+}
+function removeAllowed(i) {
+  allowedDomains.splice(i,1);
+  renderAllowedPills('allowlist-single');
+  renderAllowedPills('allowlist-bulk');
+}
+
+// ════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════
+function extractDomains(str) {
+  const m = str.match(/https?:\/\/([a-z0-9.\-]+)/gi) || [];
+  return [...new Set(m.map(u=>{ try{return new URL(u).hostname.toLowerCase();}catch(e){return null;} }).filter(Boolean))];
+}
+function isDomainAllowed(d) { return allowedDomains.some(a => d===a || d.endsWith('.'+a)); }
+function isEncoded(str) {
+  return /%[0-9A-Fa-f]{2}/.test(str) && !(/[<>]/.test(str) || (/&(?!amp;|lt;|gt;|quot;|apos;)/.test(str) && !/%26/.test(str)));
+}
+function looksLikeVAST(str) {
+  return /<VAST/i.test(str) || /VASTAdTagURI/i.test(str) || /^https?:\/\/.+/i.test(str.trim());
+}
+function extractVersion(raw) {
+  const m = raw.match(/VAST\s+version\s*=\s*["']?([\d.]+)["']?/i);
+  return m ? m[1] : null;
+}
+
+// ════════════════════════════════════════════════════
+// VALIDATION ENGINE
+// ════════════════════════════════════════════════════
+function runOuterChecks(raw, ver) {
+  const checks = [];
+  checks.push({ name:'VAST Version 2.0', status: ver==='2.0'?'pass':'fail',
+    detail: ver ? `Detected: VAST ${ver}` : 'No VAST version attribute found.',
+    suggestion: ver!=='2.0' ? 'Request a VAST 2.0 tag. Other versions are rejected.' : null });
+
+  const hasVapaid = /vapaid/i.test(raw);
+  checks.push({ name:'VAPAID Attribute', status: hasVapaid?'fail':'pass',
+    detail: hasVapaid?'VAPAID attribute detected.':'No VAPAID. ✓',
+    suggestion: hasVapaid?'Remove VAPAID before trafficking.':null });
+
+  const domains = extractDomains(raw);
+  const blocked = domains.filter(d=>!isDomainAllowed(d));
+  checks.push({ name:'Domain Allowlist', status: blocked.length?'fail':(domains.length?'pass':'warn'),
+    detail: blocked.length ? `${blocked.length} unapproved domain(s): ${blocked.join(', ')}` : domains.length ? `All ${domains.length} domain(s) approved. ✓` : 'No external domains found.',
+    suggestion: blocked.length ? `Remove URLs from: ${blocked.join(', ')}` : null });
+
+  const hasImp = /<Impression/i.test(raw);
+  checks.push({ name:'Impression Tracker', status: hasImp?'pass':'warn',
+    detail: hasImp?'Impression URL present. ✓':'No <Impression> found.',
+    suggestion: !hasImp?'Ask vendor to include an <Impression> URL.':null });
+
+  const httpCount = (raw.match(/http:\/\//gi)||[]).length;
+  checks.push({ name:'HTTPS Compliance', status: httpCount===0?'pass':'warn',
+    detail: httpCount===0?'All URLs HTTPS. ✓':`${httpCount} non-secure HTTP URL(s).`,
+    suggestion: httpCount>0?'Request vendor update all URLs to HTTPS.':null });
+
+  const hasCT = /<ClickThrough/i.test(raw);
+  checks.push({ name:'Click-Through URL', status: hasCT?'pass':'warn',
+    detail: hasCT?'Click-through present. ✓':'No <ClickThrough> found.',
+    suggestion: !hasCT?'Confirm if click destination is required.':null });
+
+  const hasWrapper = /<Wrapper/i.test(raw)||/<VASTAdTagURI/i.test(raw);
+  checks.push({ name:'Wrapper Detection', status: hasWrapper?'info':'pass',
+    detail: hasWrapper?'Wrapper tag detected — see wrapper checks below.':'Inline VAST, no wrapper. ✓',
+    suggestion: null });
+
+  return checks;
+}
+
+function runWrapperChecks(raw) {
+  const checks = [];
+  const uriMatch = raw.match(/<VASTAdTagURI[^>]*>([\s\S]*?)<\/VASTAdTagURI>/i);
+  const uriRaw   = uriMatch ? uriMatch[1].replace(/<!\[CDATA\[|\]\]>/g,'').trim() : null;
+
+  checks.push({ name:'VASTAdTagURI Present', status: uriRaw?'pass':'fail',
+    detail: uriRaw?`URI: ${uriRaw.substring(0,65)}…`:'No <VASTAdTagURI> found.',
+    suggestion: !uriRaw?'Wrapper must contain a <VASTAdTagURI>.':null });
+
+  if (uriRaw) {
+    const enc = isEncoded(uriRaw);
+    checks.push({ name:'Wrapper URI URL-Encoded', status: enc?'pass':'fail',
+      detail: enc?'URI is correctly URL-encoded. ✓':'URI is NOT URL-encoded. Raw special chars detected.',
+      suggestion: !enc?'Encode the URI: & → %26, = → %3D, ? → %3F. Ask vendor to encode before delivery.':null });
+
+    const wDomains = extractDomains(uriRaw);
+    const wBlocked = wDomains.filter(d=>!isDomainAllowed(d));
+    checks.push({ name:'Wrapper URI Domain', status: wBlocked.length?'fail':(wDomains.length?'pass':'warn'),
+      detail: wBlocked.length?`Unapproved domain(s): ${wBlocked.join(', ')}`:wDomains.length?`Approved: ${wDomains.join(', ')} ✓`:'No domain in wrapper URI.',
+      suggestion: wBlocked.length?'Wrapper must redirect through approved domains only.':null });
+  }
+
+  const hasFallback = /fallbackOnNoAd\s*=\s*["']?true/i.test(raw);
+  checks.push({ name:'fallbackOnNoAd', status: hasFallback?'pass':'warn',
+    detail: hasFallback?'fallbackOnNoAd="true" set. ✓':'fallbackOnNoAd not set.',
+    suggestion: !hasFallback?'Set fallbackOnNoAd="true" to handle empty ad responses gracefully.':null });
+
+  return checks;
+}
+
+function runInnerTagChecks(raw) {
+  const checks = [];
+  const vm = raw.match(/VAST\s+version\s*=\s*["']?([\d.]+)["']?/i);
+  checks.push({ name:'Inner — VAST 2.0', status: vm&&vm[1]==='2.0'?'pass':'fail',
+    detail: vm?`Inner version: ${vm[1]}`:'No VAST version in inner tag.',
+    suggestion: (!vm||vm[1]!=='2.0')?'Inner tag must also be VAST 2.0.':null });
+
+  const isAnotherWrapper = /<Wrapper/i.test(raw)||/<VASTAdTagURI/i.test(raw);
+  checks.push({ name:'Inner — Is Inline', status: isAnotherWrapper?'warn':'pass',
+    detail: isAnotherWrapper?'Inner tag is also a wrapper (multi-level chain).':'Inner tag is inline. ✓',
+    suggestion: isAnotherWrapper?'Request a flattened inline VAST. Nested wrappers increase timeout risk.':null });
+
+  const hasMF = /<MediaFile/i.test(raw);
+  checks.push({ name:'Inner — Video MediaFile', status: hasMF?'pass':'fail',
+    detail: hasMF?'MediaFile detected. ✓':'No <MediaFile> — ad will not render.',
+    suggestion: !hasMF?'Inner tag must have a <MediaFile> with a .mp4 URL.':null });
+
+  const wm = raw.match(/width\s*=\s*["']?(\d+)["']?/i);
+  const hm = raw.match(/height\s*=\s*["']?(\d+)["']?/i);
+  const mW = wm?parseInt(wm[1]):null, mH = hm?parseInt(hm[1]):null;
+  if (!mW&&!mH) {
+    checks.push({ name:'Inner — Dimensions (1080×1920)', status:'warn',
+      detail:'Cannot detect dimensions. Verify externally.',
+      suggestion:'MediaFile must specify width="1080" height="1920".' });
+  } else {
+    const ok = mW===1080&&mH===1920;
+    checks.push({ name:'Inner — Dimensions (1080×1920)', status: ok?'pass':'fail',
+      detail: ok?`${mW}×${mH} ✓`:`Detected ${mW||'?'}×${mH||'?'}. Required 1080×1920.`,
+      suggestion: !ok?'Request creative at exactly 1080×1920.':null });
+  }
+
+  const iBlocked = extractDomains(raw).filter(d=>!isDomainAllowed(d));
+  checks.push({ name:'Inner — Domain Allowlist', status: iBlocked.length?'fail':'pass',
+    detail: iBlocked.length?`Unapproved: ${iBlocked.join(', ')}`: 'All domains approved. ✓',
+    suggestion: iBlocked.length?`Remove unapproved domains: ${iBlocked.join(', ')}`:null });
+
+  const httpC = (raw.match(/http:\/\//gi)||[]).length;
+  checks.push({ name:'Inner — HTTPS', status: httpC===0?'pass':'warn',
+    detail: httpC===0?'All HTTPS. ✓':`${httpC} HTTP URL(s) in inner tag.`,
+    suggestion: httpC>0?'All inner tag URLs must use HTTPS.':null });
+
+  return checks;
+}
+
+// Quick summary for bulk table
+function quickValidate(raw) {
+  const ver = extractVersion(raw);
+  const hasVAST = /<VAST/i.test(raw);
+  if (hasVAST && ver !== '2.0') return { status:'reject', ver, score:0, issues:['VAST version rejected: '+ver], wrapper:false, dims:'N/A' };
+
+  const outer   = runOuterChecks(raw, ver);
+  const hasWrap = /<Wrapper/i.test(raw)||/<VASTAdTagURI/i.test(raw);
+  const wrapChk = hasWrap ? runWrapperChecks(raw) : [];
+  const all     = [...outer, ...wrapChk];
+
+  const passed  = all.filter(c=>c.status==='pass').length;
+  const failed  = all.filter(c=>c.status==='fail').length;
+  const warned  = all.filter(c=>c.status==='warn').length;
+  const score   = Math.round((passed/all.length)*100);
+
+  // Dimension detection
+  const wm = raw.match(/width\s*=\s*["']?(\d+)["']?/i);
+  const hm = raw.match(/height\s*=\s*["']?(\d+)["']?/i);
+  const mW = wm?parseInt(wm[1]):null, mH = hm?parseInt(hm[1]):null;
+  const dims = (mW&&mH) ? `${mW}×${mH}` : '?';
+
+  const issues = all.filter(c=>c.status==='fail'||c.status==='warn').map(c=>({n:c.name,s:c.status}));
+  const overallStatus = failed>0?'fail':warned>0?'warn':'pass';
+
+  return { status:overallStatus, ver:ver||'?', score, issues, wrapper:hasWrap, dims };
+}
+
+// ════════════════════════════════════════════════════
+// SINGLE TAG UI
+// ════════════════════════════════════════════════════
+document.getElementById('tagInput').addEventListener('input', function() {
+  const show = /<Wrapper/i.test(this.value)||/<VASTAdTagURI/i.test(this.value);
+  document.getElementById('wrapperInnerBox').classList.toggle('visible', show);
+});
+
+function validateSingle() {
+  const raw = document.getElementById('tagInput').value.trim();
+  if (!raw) { alert('Please paste a VAST tag first.'); return; }
+  const ver = extractVersion(raw);
+  const hasVAST = /<VAST/i.test(raw);
+  const rb = document.getElementById('rejectBanner');
+  const rm = document.getElementById('rejectMsg');
+  if (hasVAST && ver !== '2.0') {
+    rb.classList.add('visible');
+    rm.innerHTML = `<strong>Tag Rejected — VAST 2.0 Required</strong><br>Detected version: <code>${ver||'not specified'}</code>. Only VAST 2.0 tags are accepted.<br>Request the vendor to provide a VAST 2.0 compliant tag.`;
+    document.getElementById('singleResults').style.display='none';
+    rb.scrollIntoView({behavior:'smooth',block:'start'});
+    return;
+  }
+  rb.classList.remove('visible');
+
+  const outerChecks   = runOuterChecks(raw, ver);
+  const hasWrapper    = /<Wrapper/i.test(raw)||/<VASTAdTagURI/i.test(raw);
+  const wrapperChecks = hasWrapper ? runWrapperChecks(raw) : [];
+  const innerRaw      = document.getElementById('innerTagInput').value.trim();
+  const innerChecks   = hasWrapper ? (innerRaw ? runInnerTagChecks(innerRaw) : [{
+    name:'Inner Tag Not Provided', status:'warn',
+    detail:'Paste the resolved inner VAST tag in Step 2 to validate creative spec.',
+    suggestion:'Copy the inner VAST from your ad server and paste above, then re-validate.'
+  }]) : [];
+
+  renderSingleResults(outerChecks, wrapperChecks, innerChecks, hasWrapper);
+}
+
+function renderSingleResults(outer, wrapper, inner, hasWrapper) {
+  const all = [...outer,...wrapper,...inner];
+  const passed=all.filter(c=>c.status==='pass').length, failed=all.filter(c=>c.status==='fail').length;
+  const warned=all.filter(c=>c.status==='warn').length, infos=all.filter(c=>c.status==='info').length;
+  const score=Math.round((passed/all.length)*100);
+  const sn=document.getElementById('scoreNum');
+  sn.textContent=score+'%';
+  sn.style.color=score>=80?'var(--pass)':score>=50?'var(--warn)':'var(--fail)';
+  document.getElementById('scoreRing').style.borderColor=sn.style.color;
+  document.getElementById('resultTitle').textContent=failed?'Issues Found — Action Required':warned?'Passed with Warnings':'All Checks Passed ✓';
+  document.getElementById('resultSubtitle').textContent=`${passed} passed · ${failed} failed · ${warned} warnings · ${infos} info · ${all.length} checks`;
+  document.getElementById('summaryBar').innerHTML=[
+    failed?`<div class="summary-pill"><div class="dot" style="background:var(--fail)"></div>${failed} Failed</div>`:'',
+    warned?`<div class="summary-pill"><div class="dot" style="background:var(--warn)"></div>${warned} Warnings</div>`:'',
+    passed?`<div class="summary-pill"><div class="dot" style="background:var(--pass)"></div>${passed} Passed</div>`:'',
+    infos?`<div class="summary-pill"><div class="dot" style="background:var(--info)"></div>${infos} Info</div>`:'',
+  ].join('');
+  const icons={pass:'✓',fail:'✕',warn:'⚠',info:'ℹ'};
+  function rg(checks,id){
+    document.getElementById(id).innerHTML=checks.map(c=>`
+      <div class="check-item ${c.status}">
+        <div class="check-icon">${icons[c.status]}</div>
+        <div class="check-content">
+          <div class="check-name">${c.name}</div>
+          <div class="check-detail">${c.detail}</div>
+          ${c.suggestion?`<div class="check-suggestion"><strong>💡 Suggested Fix</strong>${c.suggestion}</div>`:''}
+        </div>
+      </div>`).join('');
+  }
+  rg(outer,'outerChecksGrid');
+  const ws=document.getElementById('wrapperChecksSection');
+  if(hasWrapper){ws.style.display='block';rg(wrapper,'wrapperChecksGrid');rg(inner,'innerChecksGrid');}else{ws.style.display='none';}
+  document.getElementById('wrapperStepsSection').innerHTML=hasWrapper?`
+    <div class="wrapper-box"><div class="wrapper-title">🔗 Wrapper — Resolution Guide</div><div class="steps">
+      ${['Confirm <code>&lt;VASTAdTagURI&gt;</code> is URL-encoded: <code>&amp;</code>→<code>%26</code>, <code>=</code>→<code>%3D</code>.',
+        'Use IAB Tech Lab VAST Inspector to trace redirect chain. DSPs allow up to <code>3–5</code> hops.',
+        'Paste resolved inner tag in Step 2 box and re-validate.',
+        'Confirm inner tag has <code>&lt;MediaFile&gt;</code> at <strong>1080×1920</strong>.',
+        'Verify all domains in both tags are on the allowlist.',
+        'If chain exceeds 3 levels or has unapproved domains, request a <strong>flat inline VAST 2.0</strong>.',
+        'Test in staging DSP before production trafficking.',
+      ].map((t,i)=>`<div class="step"><div class="step-num">${i+1}</div><div class="step-text">${t}</div></div>`).join('')}
+    </div></div>` : '';
+  document.getElementById('singleResults').style.display='block';
+  document.getElementById('singleResults').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function clearSingle() {
+  document.getElementById('tagInput').value='';
+  document.getElementById('innerTagInput').value='';
+  document.getElementById('wrapperInnerBox').classList.remove('visible');
+  document.getElementById('singleResults').style.display='none';
+  document.getElementById('rejectBanner').classList.remove('visible');
+}
+
+function loadSample(type) {
+  if (type==='wrapper') {
+    document.getElementById('tagInput').value=`<VAST version="2.0">
+  <Ad id="wrap-001">
+    <Wrapper fallbackOnNoAd="true">
+      <AdSystem>SampleDSP</AdSystem>
+      <VASTAdTagURI><![CDATA[https%3A%2F%2Fadserver.example.com%2Fvast%3Fid%3Dabc123%26cb%3D456789]]></VASTAdTagURI>
+      <Impression><![CDATA[https://track.myplatform.com/imp?id=wrap-001]]></Impression>
+      <Creatives/>
+    </Wrapper>
+  </Ad>
+</VAST>`;
+    document.getElementById('innerTagInput').value=`<VAST version="2.0">
+  <Ad id="inline-001">
+    <InLine>
+      <AdSystem>VendorAdServer</AdSystem>
+      <AdTitle>Sample Creative</AdTitle>
+      <Impression><![CDATA[https://pixel.approvedvendor.com/imp?id=inline-001]]></Impression>
+      <Creatives>
+        <Creative>
+          <Linear>
+            <MediaFiles>
+              <MediaFile width="1080" height="1920" type="video/mp4" delivery="progressive">
+                <![CDATA[https://cdn.example.com/creative_1080x1920.mp4]]>
+              </MediaFile>
+            </MediaFiles>
+            <VideoClicks><ClickThrough><![CDATA[https://www.advertiser.com]]></ClickThrough></VideoClicks>
+          </Linear>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>`;
+    document.getElementById('wrapperInnerBox').classList.add('visible');
+  } else {
+    document.getElementById('tagInput').value=`<VAST version="4.0">
+  <Ad id="bad-001">
+    <InLine>
+      <AdSystem>BadVendor</AdSystem>
+      <Impression><![CDATA[http://track.doubleclick.net/imp?id=001]]></Impression>
+      <Creatives>
+        <Creative>
+          <Linear>
+            <MediaFiles>
+              <MediaFile width="720" height="1280" type="video/mp4">
+                <![CDATA[https://cdn.example.com/wrong_size.mp4]]>
+              </MediaFile>
+            </MediaFiles>
+          </Linear>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>`;
+    document.getElementById('innerTagInput').value='';
+    document.getElementById('wrapperInnerBox').classList.remove('visible');
+  }
+}
+
+// ════════════════════════════════════════════════════
+// BULK VALIDATE
+// ════════════════════════════════════════════════════
+let bulkMode = 'file';
+let parsedColumns = [];  // [{header, values}]
+let selectedColIndex = null;
+let bulkResultsData = [];
+
+function setBulkMode(mode) {
+  bulkMode = mode;
+  document.getElementById('fileMode').style.display   = mode==='file'  ? 'block' : 'none';
+  document.getElementById('pasteMode').style.display  = mode==='paste' ? 'block' : 'none';
+  document.getElementById('modeFileBtn').classList.toggle('active', mode==='file');
+  document.getElementById('modePasteBtn').classList.toggle('active', mode==='paste');
+}
+
+// Drag-and-drop
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', ()=> dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e=>{ e.preventDefault(); dz.classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+
+function handleFile(file) {
+  if (!file) return;
+  document.getElementById('dzFileName').textContent = '📎 ' + file.name;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    let rows = [];
+    if (ext === 'csv') {
+      rows = parseCSV(e.target.result);
+    } else {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+    }
+    if (rows.length < 2) { alert('File appears empty or could not be parsed.'); return; }
+    processRows(rows);
+  };
+
+  if (ext === 'csv') reader.readAsText(file);
+  else reader.readAsArrayBuffer(file);
+}
+
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l=>l.trim());
+  return lines.map(line => {
+    const cells = [];
+    let cur = '', inQ = false;
+    for (let i=0; i<line.length; i++) {
+      if (line[i]==='"') { inQ=!inQ; }
+      else if (line[i]===','&&!inQ) { cells.push(cur.trim()); cur=''; }
+      else cur+=line[i];
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+}
+
+function processRows(rows) {
+  const headers = rows[0].map((h,i)=> h || `Column ${i+1}`);
+  parsedColumns = headers.map((h,i)=>({
+    header: h,
+    values: rows.slice(1).map(r=> (r[i]||'').toString().trim())
+  }));
+
+  // Auto-detect VAST columns
+  parsedColumns.forEach(col => {
+    col.vastCount = col.values.filter(v => looksLikeVAST(v)).length;
+    col.autoDetected = col.vastCount > 0;
+  });
+
+  // Render column picker
+  const chips = document.getElementById('colChips');
+  chips.innerHTML = parsedColumns.map((col,i)=>`
+    <div class="col-chip ${col.autoDetected?'auto':''} ${selectedColIndex===i?'selected':''}"
+         onclick="selectColumn(${i})"
+         title="${col.vastCount} VAST tags detected">
+      ${col.autoDetected?'✅ ':''}${col.header} ${col.autoDetected?`(${col.vastCount} tags)`:''}
+    </div>`).join('');
+
+  document.getElementById('colPicker').classList.add('visible');
+
+  // Auto-select best column
+  const best = parsedColumns.reduce((b,c,i)=> c.vastCount > (parsedColumns[b]||{vastCount:-1}).vastCount ? i : b, 0);
+  if (parsedColumns[best] && parsedColumns[best].vastCount > 0) selectColumn(best);
+}
+
+function selectColumn(i) {
+  selectedColIndex = i;
+  document.querySelectorAll('.col-chip').forEach((c,idx)=> c.classList.toggle('selected', idx===i));
+}
+
+async function runBulkValidation() {
+  let tags = [];
+
+  if (bulkMode === 'paste') {
+    tags = document.getElementById('bulkPasteInput').value
+      .split('\n')
+      .map(l=>l.trim())
+      .filter(l=>l.length>0);
+  } else {
+    if (selectedColIndex === null) { alert('Please select the column containing VAST tags.'); return; }
+    tags = parsedColumns[selectedColIndex].values.filter(v=>v.length>0);
+  }
+
+  if (tags.length === 0) { alert('No tags found to validate.'); return; }
+
+  // Show progress
+  const pw = document.getElementById('progressWrap');
+  const pf = document.getElementById('progressFill');
+  const pl = document.getElementById('progressLabel');
+  pw.classList.add('visible');
+  document.getElementById('bulkResults').style.display='none';
+  bulkResultsData = [];
+
+  for (let i=0; i<tags.length; i++) {
+    await new Promise(r=>setTimeout(r,0)); // yield to UI
+    const pct = Math.round(((i+1)/tags.length)*100);
+    pf.style.width = pct+'%';
+    pl.textContent = `Validating ${i+1} of ${tags.length} tags… (${pct}%)`;
+    const result = quickValidate(tags[i]);
+    bulkResultsData.push({ idx: i+1, raw: tags[i], ...result });
+  }
+
+  pw.classList.remove('visible');
+  renderBulkTable(bulkResultsData);
+  document.getElementById('exportBtn').style.display='inline-flex';
+}
+
+function renderBulkTable(data) {
+  const total   = data.length;
+  const rejected= data.filter(d=>d.status==='reject').length;
+  const failed  = data.filter(d=>d.status==='fail').length;
+  const warned  = data.filter(d=>d.status==='warn').length;
+  const passed  = data.filter(d=>d.status==='pass').length;
+
+  document.getElementById('bulkSummaryBar').innerHTML = [
+    `<div class="summary-pill"><div class="dot" style="background:var(--muted)"></div>${total} Total</div>`,
+    passed  ? `<div class="summary-pill"><div class="dot" style="background:var(--pass)"></div>${passed} Passed</div>`   : '',
+    warned  ? `<div class="summary-pill"><div class="dot" style="background:var(--warn)"></div>${warned} Warnings</div>` : '',
+    failed  ? `<div class="summary-pill"><div class="dot" style="background:var(--fail)"></div>${failed} Failed</div>`   : '',
+    rejected? `<div class="summary-pill"><div class="dot" style="background:var(--fail)"></div>${rejected} Rejected</div>`: '',
+  ].join('');
+
+  renderTableRows(data);
+  document.getElementById('bulkResults').style.display='block';
+  document.getElementById('bulkResults').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderTableRows(data) {
+  const tbody = document.getElementById('bulkTableBody');
+  tbody.innerHTML = data.map(d => {
+    const preview = d.raw.replace(/</g,'&lt;').replace(/>/g,'&gt;').substring(0,80);
+    const statusBadge = {
+      pass:   `<span class="status-badge sb-pass">✓ Pass</span>`,
+      fail:   `<span class="status-badge sb-fail">✕ Fail</span>`,
+      warn:   `<span class="status-badge sb-warn">⚠ Warn</span>`,
+      reject: `<span class="status-badge sb-reject">🚫 Rejected</span>`,
+    }[d.status];
+
+    const dimColor = d.dims==='1080×1920' ? 'var(--pass)' : d.dims==='?' ? 'var(--muted)' : 'var(--fail)';
+
+    const issueHtml = d.status==='reject'
+      ? `<div class="fail-item f">VAST ${d.ver} rejected — not 2.0</div>`
+      : d.issues.length===0
+        ? '<div class="fail-item" style="color:var(--pass)">No issues ✓</div>'
+        : d.issues.slice(0,4).map(iss=>`<div class="fail-item ${iss.s==='fail'?'f':'w'}">
+            ${iss.s==='fail'?'✕':'⚠'} ${iss.n}
+          </div>`).join('') + (d.issues.length>4?`<div class="fail-item">+${d.issues.length-4} more…</div>`:'');
+
+    return `<tr class="tr-${d.status}" data-status="${d.status}" data-raw="${encodeURIComponent(d.raw.substring(0,200))}">
+      <td style="color:var(--muted);font-family:'Space Mono',monospace;">${d.idx}</td>
+      <td><div class="tag-preview">${preview}</div></td>
+      <td>${statusBadge}</td>
+      <td class="score-cell" style="color:${d.score>=80?'var(--pass)':d.score>=50?'var(--warn)':'var(--fail)'}">${d.status==='reject'?'—':d.score+'%'}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:${d.ver==='2.0'?'var(--pass)':'var(--fail)'}">${d.ver}</td>
+      <td style="font-size:11px;">${d.wrapper?'<span style="color:var(--info)">⚠ Wrapper</span>':'<span style="color:var(--muted)">Inline</span>'}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:${dimColor}">${d.dims}</td>
+      <td><div class="fail-list">${issueHtml}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+// Filter / search
+let activeFilter = 'all';
+function filterTable(filter, btn) {
+  if (filter !== 'search') {
+    activeFilter = filter;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+  }
+  const search = document.getElementById('tableSearch').value.toLowerCase();
+  let filtered = bulkResultsData;
+  if (activeFilter !== 'all') filtered = filtered.filter(d=>d.status===activeFilter);
+  if (search) filtered = filtered.filter(d=> d.raw.toLowerCase().includes(search) || d.dims.includes(search) || d.ver.includes(search));
+  renderTableRows(filtered);
+}
+
+// Export CSV
+function exportCSV() {
+  if (!bulkResultsData.length) return;
+  const headers = ['#','Tag Preview','Status','Score','VAST Version','Wrapper','Dimensions','Issues'];
+  const rows = bulkResultsData.map(d=>[
+    d.idx,
+    '"'+d.raw.substring(0,120).replace(/"/g,"'")+'"',
+    d.status,
+    d.status==='reject'?'rejected':d.score+'%',
+    d.ver,
+    d.wrapper?'Yes':'No',
+    d.dims,
+    '"'+(d.status==='reject'?'VAST version rejected':d.issues.map(i=>i.n).join('; '))+'"'
+  ]);
+  const csv = [headers, ...rows].map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='vast_validation_results.csv'; a.click();
+}
+
+function clearBulk() {
+  document.getElementById('bulkPasteInput').value='';
+  document.getElementById('dzFileName').textContent='';
+  document.getElementById('fileInput').value='';
+  document.getElementById('colPicker').classList.remove('visible');
+  document.getElementById('bulkResults').style.display='none';
+  document.getElementById('exportBtn').style.display='none';
+  document.getElementById('progressWrap').classList.remove('visible');
+  bulkResultsData=[];
+  parsedColumns=[];
+  selectedColIndex=null;
+}
+
+// ════════════════════════════════════════════════════
+// TABS + INIT
+// ════════════════════════════════════════════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Init allowlists
+renderAllowlistInto('allowlist-single');
+renderAllowlistInto('allowlist-bulk');
+</script>
+</body>
+</html>
