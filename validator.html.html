@@ -1,0 +1,3202 @@
+<!DOCTYPE html>
+<html>
+	<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="utf-8" />
+		<title>
+		</title>
+		<style>
+			body { line-height:115%; font-family:Arial; font-size:11pt }
+			h1, h2, h3, h4, h5, h6, p { margin:0pt }
+			h1 { margin-top:20pt; margin-bottom:6pt; page-break-before:auto; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:20pt; font-weight:normal; color:#000000 }
+			h2 { margin-top:18pt; margin-bottom:6pt; page-break-before:auto; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:16pt; font-weight:normal; color:#000000 }
+			h3 { margin-top:16pt; margin-bottom:4pt; page-break-before:auto; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:14pt; font-weight:normal; color:#434343 }
+			h4 { margin-top:14pt; margin-bottom:4pt; page-break-before:auto; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:12pt; font-weight:normal; font-style:normal; color:#666666 }
+			h5 { margin-top:12pt; margin-bottom:4pt; page-break-before:auto; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:11pt; font-weight:normal; color:#666666 }
+			h6 { margin-top:12pt; margin-bottom:4pt; page-break-before:auto; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:11pt; font-weight:normal; font-style:italic; color:#666666 }
+			.Subtitle { margin-top:0pt; margin-bottom:16pt; page-break-before:auto; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-family:Arial; font-size:15pt; font-style:normal; color:#666666 }
+			.Title { margin-top:0pt; margin-bottom:3pt; page-break-before:auto; page-break-inside:avoid; page-break-after:avoid; line-height:115%; font-size:26pt }
+@media (max-width: 900px) { 
+img { 
+   max-width: 100%;
+   height: auto;
+}
+
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td, th {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+}	
+
+
+		</style>
+	</head>
+	<body>
+			<p>
+				&lt;!DOCTYPE html&gt;
+			</p>
+			<p>
+				&lt;html lang="en"&gt;
+			</p>
+			<p>
+				&lt;head&gt;
+			</p>
+			<p>
+				&lt;meta charset="UTF-8"&gt;
+			</p>
+			<p>
+				&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+			</p>
+			<p>
+				&lt;title&gt;Aditya's VAST Tag Validator&lt;/title&gt;
+			</p>
+			<p>
+				&lt;link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&amp;family=DM+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"&gt;
+			</p>
+			<p>
+				&lt;!-- SheetJS for Excel parsing --&gt;
+			</p>
+			<p>
+				&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"&gt;&lt;/script&gt;
+			</p>
+			<p>
+				&lt;style&gt;
+			</p>
+			<p>
+				:root {
+			</p>
+			<p>
+				&#xa0; --bg:#0a0c10;--surface:#111318;--surface2:#1a1d25;--border:#252830;
+			</p>
+			<p>
+				&#xa0; --accent:#00e5ff;--accent2:#ff4d6d;--warn:#ffb300;--text:#e8eaf0;
+			</p>
+			<p>
+				&#xa0; --muted:#6b7280;--pass:#b9ff66;--fail:#ff4d6d;--info:#00e5ff;
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				*{box-sizing:border-box;margin:0;padding:0;}
+			</p>
+			<p>
+				body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:0 0 80px;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Header ─ */
+			</p>
+			<p>
+				header{border-bottom:1px solid var(--border);padding:18px 32px;display:flex;align-items:center;gap:14px;position:sticky;top:0;background:rgba(10,12,16,.96);backdrop-filter:blur(14px);z-index:100;}
+			</p>
+			<p>
+				.logo-icon{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;color:#000;flex-shrink:0;}
+			</p>
+			<p>
+				.logo-text{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:.04em;}
+			</p>
+			<p>
+				.logo-sub{font-size:10px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+			</p>
+			<p>
+				.header-badge{margin-left:auto;background:rgba(255,77,109,.13);border:1px solid rgba(255,77,109,.3);color:var(--accent2);font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;letter-spacing:.06em;text-transform:uppercase;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Tabs ─ */
+			</p>
+			<p>
+				.tab-bar{display:flex;border-bottom:1px solid var(--border);padding:0 32px;background:var(--surface);overflow-x:auto;}
+			</p>
+			<p>
+				.tab-btn{padding:13px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+			</p>
+			<p>
+				.tab-btn:hover{color:var(--text);}
+			</p>
+			<p>
+				.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+			</p>
+			<p>
+				.tab-panel{display:none;}
+			</p>
+			<p>
+				.tab-panel.active{display:block;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Layout ─ */
+			</p>
+			<p>
+				.container{max-width:1100px;margin:0 auto;padding:32px 24px 0;}
+			</p>
+			<p>
+				.hero{margin-bottom:24px;}
+			</p>
+			<p>
+				.hero h1{font-family:'Space Mono',monospace;font-size:clamp(18px,3.5vw,28px);font-weight:700;line-height:1.2;margin-bottom:8px;}
+			</p>
+			<p>
+				.hero h1 span{color:var(--accent);}
+			</p>
+			<p>
+				.hero p{color:var(--muted);font-size:13px;line-height:1.7;max-width:600px;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;}
+			</p>
+			<p>
+				.section-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+			</p>
+			<p>
+				.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;line-height:1.7;padding:13px;resize:vertical;min-height:140px;outline:none;transition:border-color .2s;}
+			</p>
+			<p>
+				textarea:focus{border-color:var(--accent);}
+			</p>
+			<p>
+				textarea::placeholder{color:var(--muted);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Buttons ─ */
+			</p>
+			<p>
+				.actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+			</p>
+			<p>
+				.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;}
+			</p>
+			<p>
+				.btn-primary{background:var(--accent);color:#000;}
+			</p>
+			<p>
+				.btn-primary:hover{background:#33eaff;transform:translateY(-1px);}
+			</p>
+			<p>
+				.btn-secondary{background:var(--surface2);color:var(--muted);border:1px solid var(--border);}
+			</p>
+			<p>
+				.btn-secondary:hover{color:var(--text);border-color:var(--muted);}
+			</p>
+			<p>
+				.btn-green{background:rgba(185,255,102,.15);color:var(--pass);border:1px solid rgba(185,255,102,.3);}
+			</p>
+			<p>
+				.btn-green:hover{background:rgba(185,255,102,.25);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Allowlist ─ */
+			</p>
+			<p>
+				.list-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+			</p>
+			<p>
+				.list-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+			</p>
+			<p>
+				.list-count{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:10px;padding:2px 8px;border-radius:20px;font-family:'Space Mono',monospace;}
+			</p>
+			<p>
+				.chevron{transition:transform .2s;font-size:11px;color:var(--muted);}
+			</p>
+			<p>
+				.chevron.open{transform:rotate(180deg);}
+			</p>
+			<p>
+				.list-body{display:none;margin-top:16px;}
+			</p>
+			<p>
+				.list-body.open{display:block;}
+			</p>
+			<p>
+				.tag-grid{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+			</p>
+			<p>
+				.tag-pill{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid rgba(185,255,102,.3);border-radius:6px;padding:3px 10px;font-size:11px;font-family:'Space Mono',monospace;color:var(--pass);}
+			</p>
+			<p>
+				.tag-pill .remove{cursor:pointer;color:var(--muted);font-size:14px;transition:color .15s;}
+			</p>
+			<p>
+				.tag-pill .remove:hover{color:var(--fail);}
+			</p>
+			<p>
+				.list-add{display:flex;gap:8px;}
+			</p>
+			<p>
+				.list-add input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;padding:7px 12px;outline:none;transition:border-color .2s;}
+			</p>
+			<p>
+				.list-add input:focus{border-color:var(--accent);}
+			</p>
+			<p>
+				.list-add input::placeholder{color:var(--muted);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Single tag: wrapper inner box ─ */
+			</p>
+			<p>
+				.wrapper-inner-box{display:none;margin-top:14px;background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.2);border-radius:12px;padding:16px;}
+			</p>
+			<p>
+				.wrapper-inner-box.visible{display:block;}
+			</p>
+			<p>
+				.wrapper-inner-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--info);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+			</p>
+			<p>
+				.wil-badge{background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.25);color:var(--info);padding:2px 8px;border-radius:20px;font-size:9px;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Reject banner ─ */
+			</p>
+			<p>
+				.reject-banner{display:none;background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.35);border-radius:12px;padding:14px 18px;margin-bottom:16px;color:var(--fail);font-size:13px;font-weight:600;line-height:1.6;}
+			</p>
+			<p>
+				.reject-banner.visible{display:flex;align-items:flex-start;gap:12px;}
+			</p>
+			<p>
+				.reject-banner code{font-family:'Space Mono',monospace;font-size:12px;background:rgba(255,77,109,.15);padding:1px 6px;border-radius:4px;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Single tag results ─ */
+			</p>
+			<p>
+				#singleResults{display:none;}
+			</p>
+			<p>
+				.results-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+			</p>
+			<p>
+				.score-ring{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;border:3px solid var(--border);flex-shrink:0;}
+			</p>
+			<p>
+				.score-num{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;line-height:1;}
+			</p>
+			<p>
+				.score-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+			</p>
+			<p>
+				.results-meta h2{font-family:'Space Mono',monospace;font-size:14px;margin-bottom:3px;}
+			</p>
+			<p>
+				.results-meta p{font-size:12px;color:var(--muted);}
+			</p>
+			<p>
+				.summary-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+			</p>
+			<p>
+				.summary-pill{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;}
+			</p>
+			<p>
+				.dot{width:7px;height:7px;border-radius:50%;}
+			</p>
+			<p>
+				.section-heading{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;display:flex;align-items:center;gap:10px;}
+			</p>
+			<p>
+				.section-heading::after{content:'';flex:1;height:1px;background:var(--border);}
+			</p>
+			<p>
+				.checks-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:4px;}
+			</p>
+			<p>
+				.check-item{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 14px;display:flex;align-items:flex-start;gap:11px;}
+			</p>
+			<p>
+				.check-item.pass{border-left:3px solid var(--pass);}
+			</p>
+			<p>
+				.check-item.fail{border-left:3px solid var(--fail);}
+			</p>
+			<p>
+				.check-item.warn{border-left:3px solid var(--warn);}
+			</p>
+			<p>
+				.check-item.info{border-left:3px solid var(--info);}
+			</p>
+			<p>
+				.check-icon{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:1px;}
+			</p>
+			<p>
+				.pass .check-icon{background:rgba(185,255,102,.12);color:var(--pass);}
+			</p>
+			<p>
+				.fail .check-icon{background:rgba(255,77,109,.12);color:var(--fail);}
+			</p>
+			<p>
+				.warn .check-icon{background:rgba(255,179,0,.12);color:var(--warn);}
+			</p>
+			<p>
+				.info .check-icon{background:rgba(0,229,255,.12);color:var(--info);}
+			</p>
+			<p>
+				.check-content{flex:1;}
+			</p>
+			<p>
+				.check-name{font-size:13px;font-weight:600;margin-bottom:3px;}
+			</p>
+			<p>
+				.check-detail{font-size:11px;color:var(--muted);line-height:1.6;font-family:'Space Mono',monospace;word-break:break-all;}
+			</p>
+			<p>
+				.check-suggestion{margin-top:7px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;font-size:12px;line-height:1.6;}
+			</p>
+			<p>
+				.check-suggestion strong{color:var(--warn);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+			</p>
+			<p>
+				.wrapper-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:14px;}
+			</p>
+			<p>
+				.wrapper-title{font-size:11px;font-weight:700;color:var(--info);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em;}
+			</p>
+			<p>
+				.steps{display:flex;flex-direction:column;gap:9px;}
+			</p>
+			<p>
+				.step{display:flex;gap:11px;align-items:flex-start;}
+			</p>
+			<p>
+				.step-num{width:22px;height:22px;border-radius:50%;background:rgba(0,229,255,.09);border:1px solid rgba(0,229,255,.22);color:var(--info);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+			</p>
+			<p>
+				.step-text{font-size:13px;line-height:1.6;padding-top:1px;}
+			</p>
+			<p>
+				.step-text code{background:var(--surface2);border:1px solid var(--border);padding:1px 5px;border-radius:4px;font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* ─ Bulk tab ─ */
+			</p>
+			<p>
+				.bulk-mode-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;width:fit-content;}
+			</p>
+			<p>
+				.mode-btn{padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:var(--surface2);color:var(--muted);font-family:'DM Sans',sans-serif;transition:all .15s;}
+			</p>
+			<p>
+				.mode-btn.active{background:var(--accent);color:#000;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* Drop zone */
+			</p>
+			<p>
+				.dropzone{border:2px dashed var(--border);border-radius:12px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+			</p>
+			<p>
+				.dropzone:hover,.dropzone.drag-over{border-color:var(--accent);background:rgba(0,229,255,.04);}
+			</p>
+			<p>
+				.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+			</p>
+			<p>
+				.dz-icon{font-size:32px;margin-bottom:10px;}
+			</p>
+			<p>
+				.dz-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+			</p>
+			<p>
+				.dz-sub{font-size:12px;color:var(--muted);}
+			</p>
+			<p>
+				.dz-file-name{margin-top:10px;font-size:12px;color:var(--accent);font-family:'Space Mono',monospace;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* Column picker */
+			</p>
+			<p>
+				.col-picker{display:none;margin-top:14px;}
+			</p>
+			<p>
+				.col-picker.visible{display:block;}
+			</p>
+			<p>
+				.col-picker-label{font-size:11px;color:var(--muted);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;}
+			</p>
+			<p>
+				.col-chips{display:flex;flex-wrap:wrap;gap:7px;}
+			</p>
+			<p>
+				.col-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-family:'Space Mono',monospace;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .15s;}
+			</p>
+			<p>
+				.col-chip:hover{border-color:var(--accent);color:var(--accent);}
+			</p>
+			<p>
+				.col-chip.selected{background:rgba(0,229,255,.12);border-color:var(--accent);color:var(--accent);}
+			</p>
+			<p>
+				.col-chip.auto{border-color:rgba(185,255,102,.4);color:var(--pass);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* Progress bar */
+			</p>
+			<p>
+				.progress-wrap{display:none;margin-top:14px;}
+			</p>
+			<p>
+				.progress-wrap.visible{display:block;}
+			</p>
+			<p>
+				.progress-bar-bg{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+			</p>
+			<p>
+				.progress-bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .2s;width:0%;}
+			</p>
+			<p>
+				.progress-label{font-size:11px;color:var(--muted);margin-top:6px;font-family:'Space Mono',monospace;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* Bulk results table */
+			</p>
+			<p>
+				#bulkResults{display:none;margin-top:6px;}
+			</p>
+			<p>
+				.bulk-summary-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				.bulk-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+			</p>
+			<p>
+				table{width:100%;border-collapse:collapse;font-size:12px;}
+			</p>
+			<p>
+				thead tr{background:var(--surface2);}
+			</p>
+			<p>
+				th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+			</p>
+			<p>
+				td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;}
+			</p>
+			<p>
+				tr:last-child td{border-bottom:none;}
+			</p>
+			<p>
+				tr:hover td{background:rgba(255,255,255,.02);}
+			</p>
+			<p>
+				.tr-pass td:first-child{border-left:3px solid var(--pass);}
+			</p>
+			<p>
+				.tr-fail td:first-child{border-left:3px solid var(--fail);}
+			</p>
+			<p>
+				.tr-warn td:first-child{border-left:3px solid var(--warn);}
+			</p>
+			<p>
+				.tr-reject td:first-child{border-left:3px solid var(--fail);background:rgba(255,77,109,.04);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+			</p>
+			<p>
+				.sb-pass{background:rgba(185,255,102,.12);color:var(--pass);border:1px solid rgba(185,255,102,.25);}
+			</p>
+			<p>
+				.sb-fail{background:rgba(255,77,109,.12);color:var(--fail);border:1px solid rgba(255,77,109,.25);}
+			</p>
+			<p>
+				.sb-warn{background:rgba(255,179,0,.12);color:var(--warn);border:1px solid rgba(255,179,0,.25);}
+			</p>
+			<p>
+				.sb-reject{background:rgba(255,77,109,.18);color:var(--fail);border:1px solid rgba(255,77,109,.4);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				.fail-list{display:flex;flex-direction:column;gap:3px;}
+			</p>
+			<p>
+				.fail-item{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;}
+			</p>
+			<p>
+				.fail-item.f{color:var(--fail);}
+			</p>
+			<p>
+				.fail-item.w{color:var(--warn);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				.tag-preview{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				.score-cell{font-family:'Space Mono',monospace;font-weight:700;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+			</p>
+			<p>
+				.table-search{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 12px;outline:none;transition:border-color .2s;width:220px;}
+			</p>
+			<p>
+				.table-search:focus{border-color:var(--accent);}
+			</p>
+			<p>
+				.filter-btns{display:flex;gap:6px;}
+			</p>
+			<p>
+				.filter-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .15s;}
+			</p>
+			<p>
+				.filter-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				/* Proposal tab */
+			</p>
+			<p>
+				.proposal-grid{display:flex;flex-direction:column;gap:16px;}
+			</p>
+			<p>
+				.proposal-block{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;}
+			</p>
+			<p>
+				.proposal-block h3{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+			</p>
+			<p>
+				.proposal-block p,.proposal-block li{font-size:13px;color:#c5c8d2;line-height:1.75;}
+			</p>
+			<p>
+				.proposal-block ul{padding-left:18px;display:flex;flex-direction:column;gap:5px;}
+			</p>
+			<p>
+				.proposal-block li::marker{color:var(--accent);}
+			</p>
+			<p>
+				.outcome-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+			</p>
+			<p>
+				@media(max-width:560px){.outcome-grid{grid-template-columns:1fr;}}
+			</p>
+			<p>
+				.outcome-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 14px;}
+			</p>
+			<p>
+				.oc-icon{font-size:18px;margin-bottom:5px;}
+			</p>
+			<p>
+				.oc-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+			</p>
+			<p>
+				.oc-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+			</p>
+			<p>
+				.who-grid{display:flex;flex-wrap:wrap;gap:8px;}
+			</p>
+			<p>
+				.who-pill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;}
+			</p>
+			<p>
+				.urgency-bar{background:rgba(255,179,0,.08);border:1px solid rgba(255,179,0,.25);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--warn);line-height:1.65;}
+			</p>
+			<p>
+				.sf{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border);}
+			</p>
+			<p>
+				.sf:last-child{border-bottom:none;}
+			</p>
+			<p>
+				.sf-num{width:20px;height:20px;border-radius:50%;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.2);color:var(--info);font-size:10px;font-weight:700;font-family:'Space Mono',monospace;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+			</p>
+			<p>
+				.sf-text{font-size:13px;color:#c5c8d2;line-height:1.65;}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				@media(max-width:640px){header{padding:14px 16px;}.tab-bar{padding:0 14px;}.container{padding:20px 14px 0;}}
+			</p>
+			<p>
+				&lt;/style&gt;
+			</p>
+			<p>
+				&lt;/head&gt;
+			</p>
+			<p>
+				&lt;body&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&lt;header&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div class="logo-icon"&gt;VV&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="logo-text"&gt;Aditya's VAST Validator&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="logo-sub"&gt;VAST 2.0 · Allowlist · Bulk · Wrapper&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div class="header-badge"&gt;Internal Tool&lt;/div&gt;
+			</p>
+			<p>
+				&lt;/header&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&lt;div class="tab-bar"&gt;
+			</p>
+			<p>
+				&#xa0; &lt;button class="tab-btn active" onclick="switchTab('single',this)"&gt;⚡ Single Tag&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0; &lt;button class="tab-btn" onclick="switchTab('bulk',this)"&gt;📦 Bulk Validate&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0; &lt;button class="tab-btn" onclick="switchTab('proposal',this)"&gt;📋 Feature Proposal&lt;/button&gt;
+			</p>
+			<p>
+				&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&lt;!-- ══════════════════ SHARED ALLOWLIST (rendered per tab) ══════════════════ --&gt;
+			</p>
+			<p>
+				&lt;!-- Allowlist card is injected into each tab dynamically via JS --&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&lt;!-- ══════════════════ SINGLE TAG TAB ══════════════════ --&gt;
+			</p>
+			<p>
+				&lt;div id="tab-single" class="tab-panel active"&gt;
+			</p>
+			<p>
+				&lt;div class="container"&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div class="hero"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;h1&gt;Single Tag &lt;span&gt;Validator&lt;/span&gt;&lt;/h1&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;p&gt;Paste one VAST 2.0 tag for deep validation — version enforcement, allowlist, wrapper encoding, and creative spec checks.&lt;/p&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; &lt;div id="allowlist-single" class="card"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; &lt;div class="card"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="section-label"&gt;Step 1 — Paste Outer VAST Tag (XML)&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;textarea id="tagInput" placeholder="Paste your VAST 2.0 tag XML here...&amp;#10;&amp;#10;&amp;lt;VAST version=&amp;quot;2.0&amp;quot;&amp;gt;...&amp;lt;/VAST&amp;gt;&amp;#10;&amp;#10;Tags with version 3.0 or 4.0 will be hard-rejected."&gt;&lt;/textarea&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="wrapper-inner-box" id="wrapperInnerBox"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="wrapper-inner-label"&gt;🔗 Wrapper Detected — Paste Inner Tag &lt;span class="wil-badge"&gt;Step 2&lt;/span&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;p style="font-size:12px;color:var(--muted);margin-bottom:10px;"&gt;Paste the resolved inner VAST tag so the validator can check the &lt;strong&gt;1080×1920&lt;/strong&gt; creative and domain compliance.&lt;/p&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;textarea id="innerTagInput" style="min-height:110px;" placeholder="Paste the resolved inner VAST tag XML here..."&gt;&lt;/textarea&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="actions"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="btn btn-primary" onclick="validateSingle()"&gt;⚡ Validate&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="btn btn-secondary" onclick="loadSample('wrapper')"&gt;Sample: Wrapper&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="btn btn-secondary" onclick="loadSample('inline')"&gt;Sample: Bad Inline&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="btn btn-secondary" onclick="clearSingle()"&gt;Clear&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; &lt;div class="reject-banner" id="rejectBanner"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div style="font-size:20px;flex-shrink:0;"&gt;🚫&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div id="rejectMsg"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; &lt;div id="singleResults"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="results-header"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="score-ring" id="scoreRing"&gt;&lt;span class="score-num" id="scoreNum"&gt;-&lt;/span&gt;&lt;span class="score-label"&gt;Score&lt;/span&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="results-meta"&gt;&lt;h2 id="resultTitle"&gt;&lt;/h2&gt;&lt;p id="resultSubtitle"&gt;&lt;/p&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="summary-bar" id="summaryBar"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="section-heading"&gt;Outer Tag Checks&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="checks-grid" id="outerChecksGrid"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div id="wrapperChecksSection" style="display:none;"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="section-heading"&gt;Wrapper-Specific Checks&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="checks-grid" id="wrapperChecksGrid"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="section-heading"&gt;Inner Tag Checks (Creative Spec)&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="checks-grid" id="innerChecksGrid"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div id="wrapperStepsSection"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&lt;/div&gt;
+			</p>
+			<p>
+				&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&lt;!-- ══════════════════ BULK VALIDATE TAB ══════════════════ --&gt;
+			</p>
+			<p>
+				&lt;div id="tab-bulk" class="tab-panel"&gt;
+			</p>
+			<p>
+				&lt;div class="container"&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div class="hero"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;h1&gt;Bulk &lt;span&gt;Validator&lt;/span&gt;&lt;/h1&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;p&gt;Upload a CSV/Excel file with VAST tags in any column — the tool auto-detects which column contains tags. Or paste tags directly, one per line.&lt;/p&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; &lt;div id="allowlist-bulk" class="card"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; &lt;!-- Mode toggle --&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div class="card"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="section-label"&gt;Input Mode&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="bulk-mode-toggle"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="mode-btn active" id="modeFileBtn" onclick="setBulkMode('file')"&gt;📂 Upload File (CSV / Excel)&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="mode-btn" id="modePasteBtn" onclick="setBulkMode('paste')"&gt;📋 Paste Tags&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;!-- File upload mode --&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div id="fileMode"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="dropzone" id="dropzone"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;input type="file" id="fileInput" accept=".csv,.xlsx,.xls" onchange="handleFile(this.files[0])"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="dz-icon"&gt;📄&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="dz-title"&gt;Drop your CSV or Excel file here&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="dz-sub"&gt;or click to browse · Supports .csv, .xlsx, .xls&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="dz-file-name" id="dzFileName"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="col-picker" id="colPicker"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="col-picker-label"&gt;Select column containing VAST tags — auto-detected columns highlighted in green&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="col-chips" id="colChips"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;!-- Paste mode --&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div id="pasteMode" style="display:none;"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;textarea id="bulkPasteInput" style="min-height:180px;" placeholder="Paste VAST tags here — one per line.&amp;#10;&amp;#10;You can paste:&amp;#10;• Raw XML:&#xa0; &amp;lt;VAST version=&amp;quot;2.0&amp;quot;&amp;gt;...&amp;lt;/VAST&amp;gt;&amp;#10;• VAST URLs:&#xa0; https://adserver.example.com/vast?id=123&amp;#10;• Mixed — the tool handles both"&gt;&lt;/textarea&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="progress-wrap" id="progressWrap"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="progress-bar-bg"&gt;&lt;div class="progress-bar-fill" id="progressFill"&gt;&lt;/div&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="progress-label" id="progressLabel"&gt;Processing…&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="actions"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="btn btn-primary" onclick="runBulkValidation()"&gt;⚡ Validate All&lt;/button&gt;
+			</p>
+			<p>
+				<span style="font-family:'Fira Mono'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Fira Mono'">&lt;button class="btn btn-green" onclick="exportCSV()" id="exportBtn" style="display:none;"&gt;⬇ Export Results CSV&lt;/button&gt;</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="btn btn-secondary" onclick="clearBulk()"&gt;Clear&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; &lt;!-- Bulk results --&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div id="bulkResults"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="table-toolbar"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="filter-btns"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="filter-btn active" onclick="filterTable('all',this)"&gt;All&lt;/button&gt;
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">&lt;button class="filter-btn" onclick="filterTable('fail',this)"&gt;❌ Failed&lt;/button&gt;</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="filter-btn" onclick="filterTable('warn',this)"&gt;⚠ Warnings&lt;/button&gt;
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">&lt;button class="filter-btn" onclick="filterTable('pass',this)"&gt;✓ Passed&lt;/button&gt;</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="filter-btn" onclick="filterTable('reject',this)"&gt;🚫 Rejected&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;input class="table-search" type="text" id="tableSearch" placeholder="Search tags…" oninput="filterTable('search',null)"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="bulk-summary-bar" id="bulkSummaryBar"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="bulk-table-wrap"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;table id="bulkTable"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;thead&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;tr&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;th&gt;#&lt;/th&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;th&gt;Tag Preview&lt;/th&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;th&gt;Status&lt;/th&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;th&gt;Score&lt;/th&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;th&gt;VAST Ver&lt;/th&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;th&gt;Wrapper&lt;/th&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;th&gt;Dimensions&lt;/th&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;th&gt;Issues Found&lt;/th&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/tr&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/thead&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;tbody id="bulkTableBody"&gt;&lt;/tbody&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/table&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&lt;/div&gt;
+			</p>
+			<p>
+				&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&lt;!-- ══════════════════ PROPOSAL TAB ══════════════════ --&gt;
+			</p>
+			<p>
+				&lt;div id="tab-proposal" class="tab-panel"&gt;
+			</p>
+			<p>
+				&lt;div class="container"&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div class="hero"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;h1&gt;Feature &lt;span&gt;Proposal&lt;/span&gt;&lt;/h1&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;p&gt;Internal request document — Automated VAST Tag Validation &amp;amp; Data Safety Checker.&lt;/p&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;div class="proposal-grid"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="proposal-block"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;h3&gt;Feature Name&lt;/h3&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;p style="font-size:15px;font-weight:600;color:var(--text);"&gt;Automated VAST Tag Validation &amp;amp; Data Safety Checker&lt;/p&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="proposal-block"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;h3&gt;Problem Statement&lt;/h3&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;p style="margin-bottom:12px;"&gt;VAST tag validation today is heavily manual and dependent on individual technical expertise. In a cross-device setup, this creates a significant bottleneck for AMs and Ad-Ops as scale increases.&lt;/p&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;ul&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;li&gt;Non-compliant VAST tags are occasionally approved despite failing internal checks&lt;/li&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;li&gt;Real risk of unauthorized data sharing with non-approved third-party vendors&lt;/li&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;li&gt;Ad rendering failures and broken client-side measurement&lt;/li&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;li&gt;Cross-device validations consume disproportionate AM time and slow launches&lt;/li&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/ul&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="proposal-block"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;h3&gt;Proposed Feature&lt;/h3&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="sf"&gt;&lt;div class="sf-num"&gt;1&lt;/div&gt;&lt;div class="sf-text"&gt;Hard-enforce VAST 2.0 — any other version is immediately rejected&lt;/div&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="sf"&gt;&lt;div class="sf-num"&gt;2&lt;/div&gt;&lt;div class="sf-text"&gt;Domain allowlist — any unknown domain in the tag is flagged as a violation&lt;/div&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="sf"&gt;&lt;div class="sf-num"&gt;3&lt;/div&gt;&lt;div class="sf-text"&gt;Wrapper detection — validate URI encoding, trace inner tag, check 1080×1920 creative compliance&lt;/div&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="sf"&gt;&lt;div class="sf-num"&gt;4&lt;/div&gt;&lt;div class="sf-text"&gt;Bulk validation — upload a sheet with hundreds of tags and get a full compliance report in seconds&lt;/div&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="proposal-block"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;h3&gt;Impact&lt;/h3&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="outcome-grid"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="outcome-card"&gt;&lt;div class="oc-icon"&gt;🚀&lt;/div&gt;&lt;div class="oc-title"&gt;Near-Zero TAT&lt;/div&gt;&lt;div class="oc-desc"&gt;Manual validation eliminated. Cross-device approvals near-instant.&lt;/div&gt;&lt;/div&gt;
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">&lt;div class="outcome-card"&gt;&lt;div class="oc-icon"&gt;⏱&lt;/div&gt;&lt;div class="oc-title"&gt;AM Time Savings&lt;/div&gt;&lt;div class="oc-desc"&gt;Hours of rechecking removed. Capacity freed for strategy.&lt;/div&gt;&lt;/div&gt;</span>
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">&lt;div class="outcome-card"&gt;&lt;div class="oc-icon"&gt;❌&lt;/div&gt;&lt;div class="oc-title"&gt;Data Risk Reduced&lt;/div&gt;&lt;div class="oc-desc"&gt;No accidental approval of unapproved vendor pixels.&lt;/div&gt;&lt;/div&gt;</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="outcome-card"&gt;&lt;div class="oc-icon"&gt;💰&lt;/div&gt;&lt;div class="oc-title"&gt;Revenue Impact&lt;/div&gt;&lt;div class="oc-desc"&gt;Faster go-lives, less rework, scale without headcount.&lt;/div&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="proposal-block"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;h3&gt;Who Benefits&lt;/h3&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="who-grid"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="who-pill"&gt;⚙️ Ad-Ops&lt;/div&gt;&lt;div class="who-pill"&gt;📊 CSMs / AMs&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="who-pill"&gt;🤝 Clients&lt;/div&gt;&lt;div class="who-pill"&gt;📈 Business&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="proposal-block"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;h3&gt;Urgency&lt;/h3&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="urgency-bar"&gt;⚠️ &lt;strong&gt;Must-Have.&lt;/strong&gt; Data integrity is non-negotiable. This is essential to support scale without increasing operational cost or risk.&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&lt;/div&gt;
+			</p>
+			<p>
+				&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&lt;script&gt;
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				// ALLOWLIST
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				let allowedDomains = [
+			</p>
+			<p>
+				&#xa0; 'cdn.example.com','adserver.example.com',
+			</p>
+			<p>
+				&#xa0; 'track.myplatform.com','measure.internalads.com',
+			</p>
+			<p>
+				&#xa0; 'pixel.approvedvendor.com'
+			</p>
+			<p>
+				];
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function renderAllowlistInto(containerId) {
+			</p>
+			<p>
+				&#xa0; const el = document.getElementById(containerId);
+			</p>
+			<p>
+				&#xa0; if (!el) return;
+			</p>
+			<p>
+				&#xa0; el.innerHTML = `
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="list-header" onclick="toggleList('${containerId}')"&gt;
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">&lt;div class="list-title"&gt;✅ Approved Domain Allowlist &lt;span class="list-count" id="ac-${containerId}"&gt;${allowedDomains.length}&lt;/span&gt;&lt;/div&gt;</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;span class="chevron" id="ch-${containerId}"&gt;▼&lt;/span&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="list-body" id="lb-${containerId}"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;p style="font-size:12px;color:var(--muted);margin-bottom:12px;"&gt;Any domain in a tag that is &lt;strong style="color:var(--fail)"&gt;not&lt;/strong&gt; on this list is flagged as a violation.&lt;/p&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="tag-grid" id="tg-${containerId}"&gt;&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="list-add"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;input type="text" id="ai-${containerId}" placeholder="e.g. trustedtracker.com" onkeydown="if(event.key==='Enter')addAllowed('${containerId}')"/&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;button class="btn btn-secondary" onclick="addAllowed('${containerId}')"&gt;+ Add&lt;/button&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;`;
+			</p>
+			<p>
+				&#xa0; renderAllowedPills(containerId);
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function renderAllowedPills(containerId) {
+			</p>
+			<p>
+				&#xa0; const grid = document.getElementById('tg-'+containerId);
+			</p>
+			<p>
+				&#xa0; if (!grid) return;
+			</p>
+			<p>
+				&#xa0; grid.innerHTML = allowedDomains.map((d,i) =&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; `&lt;div class="tag-pill"&gt;${d}&lt;span class="remove" onclick="removeAllowed(${i})"&gt;×&lt;/span&gt;&lt;/div&gt;`
+			</p>
+			<p>
+				&#xa0; ).join('');
+			</p>
+			<p>
+				&#xa0; ['allowlist-single','allowlist-bulk'].forEach(id =&gt; {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const c = document.getElementById('ac-'+id);
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; if (c) c.textContent = allowedDomains.length;
+			</p>
+			<p>
+				&#xa0; });
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function toggleList(containerId) {
+			</p>
+			<p>
+				&#xa0; const lb = document.getElementById('lb-'+containerId);
+			</p>
+			<p>
+				&#xa0; const ch = document.getElementById('ch-'+containerId);
+			</p>
+			<p>
+				&#xa0; lb.classList.toggle('open');
+			</p>
+			<p>
+				&#xa0; ch.classList.toggle('open');
+			</p>
+			<p>
+				&#xa0; if (lb.classList.contains('open')) renderAllowedPills(containerId);
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function addAllowed(containerId) {
+			</p>
+			<p>
+				&#xa0; const input = document.getElementById('ai-'+containerId);
+			</p>
+			<p>
+				&#xa0; const val = input.value.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
+			</p>
+			<p>
+				&#xa0; if (val &amp;&amp; !allowedDomains.includes(val)) { allowedDomains.push(val); renderAllowedPills(containerId); }
+			</p>
+			<p>
+				&#xa0; input.value = '';
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				function removeAllowed(i) {
+			</p>
+			<p>
+				&#xa0; allowedDomains.splice(i,1);
+			</p>
+			<p>
+				&#xa0; renderAllowedPills('allowlist-single');
+			</p>
+			<p>
+				&#xa0; renderAllowedPills('allowlist-bulk');
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				// HELPERS
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				function extractDomains(str) {
+			</p>
+			<p>
+				&#xa0; const m = str.match(/https?:\/\/([a-z0-9.\-]+)/gi) || [];
+			</p>
+			<p>
+				&#xa0; return [...new Set(m.map(u=&gt;{ try{return new URL(u).hostname.toLowerCase();}catch(e){return null;} }).filter(Boolean))];
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				function isDomainAllowed(d) { return allowedDomains.some(a =&gt; d===a || d.endsWith('.'+a)); }
+			</p>
+			<p>
+				function isEncoded(str) {
+			</p>
+			<p>
+				&#xa0; return /%[0-9A-Fa-f]{2}/.test(str) &amp;&amp; !(/[&lt;&gt;]/.test(str) || (/&amp;(?!amp;|lt;|gt;|quot;|apos;)/.test(str) &amp;&amp; !/%26/.test(str)));
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				function looksLikeVAST(str) {
+			</p>
+			<p>
+				&#xa0; return /&lt;VAST/i.test(str) || /VASTAdTagURI/i.test(str) || /^https?:\/\/.+/i.test(str.trim());
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				function extractVersion(raw) {
+			</p>
+			<p>
+				&#xa0; const m = raw.match(/VAST\s+version\s*=\s*["']?([\d.]+)["']?/i);
+			</p>
+			<p>
+				&#xa0; return m ? m[1] : null;
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				// VALIDATION ENGINE
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				function runOuterChecks(raw, ver) {
+			</p>
+			<p>
+				&#xa0; const checks = [];
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'VAST Version 2.0', status: ver==='2.0'?'pass':'fail',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; detail: ver ? `Detected: VAST ${ver}` : 'No VAST version attribute found.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: ver!=='2.0' ? 'Request a VAST 2.0 tag. Other versions are rejected.' : null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const hasVapaid = /vapaid/i.test(raw);
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'VAPAID Attribute', status: hasVapaid?'fail':'pass',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: hasVapaid?'VAPAID attribute detected.':'No VAPAID. ✓',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: hasVapaid?'Remove VAPAID before trafficking.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const domains = extractDomains(raw);
+			</p>
+			<p>
+				&#xa0; const blocked = domains.filter(d=&gt;!isDomainAllowed(d));
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Domain Allowlist', status: blocked.length?'fail':(domains.length?'pass':'warn'),
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: blocked.length ? `${blocked.length} unapproved domain(s): ${blocked.join(', ')}` : domains.length ? `All ${domains.length} domain(s) approved. ✓` : 'No external domains found.',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: blocked.length ? `Remove URLs from: ${blocked.join(', ')}` : null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const hasImp = /&lt;Impression/i.test(raw);
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Impression Tracker', status: hasImp?'pass':'warn',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: hasImp?'Impression URL present. ✓':'No &lt;Impression&gt; found.',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: !hasImp?'Ask vendor to include an &lt;Impression&gt; URL.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const httpCount = (raw.match(/http:\/\//gi)||[]).length;
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'HTTPS Compliance', status: httpCount===0?'pass':'warn',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: httpCount===0?'All URLs HTTPS. ✓':`${httpCount} non-secure HTTP URL(s).`,</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: httpCount&gt;0?'Request vendor update all URLs to HTTPS.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const hasCT = /&lt;ClickThrough/i.test(raw);
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Click-Through URL', status: hasCT?'pass':'warn',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: hasCT?'Click-through present. ✓':'No &lt;ClickThrough&gt; found.',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: !hasCT?'Confirm if click destination is required.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const hasWrapper = /&lt;Wrapper/i.test(raw)||/&lt;VASTAdTagURI/i.test(raw);
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Wrapper Detection', status: hasWrapper?'info':'pass',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: hasWrapper?'Wrapper tag detected — see wrapper checks below.':'Inline VAST, no wrapper. ✓',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; return checks;
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function runWrapperChecks(raw) {
+			</p>
+			<p>
+				&#xa0; const checks = [];
+			</p>
+			<p>
+				&#xa0; const uriMatch = raw.match(/&lt;VASTAdTagURI[^&gt;]*&gt;([\s\S]*?)&lt;\/VASTAdTagURI&gt;/i);
+			</p>
+			<p>
+				&#xa0; const uriRaw&#xa0;&#xa0; = uriMatch ? uriMatch[1].replace(/&lt;!\[CDATA\[|\]\]&gt;/g,'').trim() : null;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'VASTAdTagURI Present', status: uriRaw?'pass':'fail',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; detail: uriRaw?`URI: ${uriRaw.substring(0,65)}…`:'No &lt;VASTAdTagURI&gt; found.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: !uriRaw?'Wrapper must contain a &lt;VASTAdTagURI&gt;.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; if (uriRaw) {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const enc = isEncoded(uriRaw);
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; checks.push({ name:'Wrapper URI URL-Encoded', status: enc?'pass':'fail',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: enc?'URI is correctly URL-encoded. ✓':'URI is NOT URL-encoded. Raw special chars detected.',</span>
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">suggestion: !enc?'Encode the URI: &amp; → %26, = → %3D, ? → %3F. Ask vendor to encode before delivery.':null });</span>
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const wDomains = extractDomains(uriRaw);
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const wBlocked = wDomains.filter(d=&gt;!isDomainAllowed(d));
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; checks.push({ name:'Wrapper URI Domain', status: wBlocked.length?'fail':(wDomains.length?'pass':'warn'),
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: wBlocked.length?`Unapproved domain(s): ${wBlocked.join(', ')}`:wDomains.length?`Approved: ${wDomains.join(', ')} ✓`:'No domain in wrapper URI.',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; suggestion: wBlocked.length?'Wrapper must redirect through approved domains only.':null });
+			</p>
+			<p>
+				&#xa0; }
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const hasFallback = /fallbackOnNoAd\s*=\s*["']?true/i.test(raw);
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'fallbackOnNoAd', status: hasFallback?'pass':'warn',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: hasFallback?'fallbackOnNoAd="true" set. ✓':'fallbackOnNoAd not set.',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: !hasFallback?'Set fallbackOnNoAd="true" to handle empty ad responses gracefully.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; return checks;
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function runInnerTagChecks(raw) {
+			</p>
+			<p>
+				&#xa0; const checks = [];
+			</p>
+			<p>
+				&#xa0; const vm = raw.match(/VAST\s+version\s*=\s*["']?([\d.]+)["']?/i);
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Inner — VAST 2.0', status: vm&amp;&amp;vm[1]==='2.0'?'pass':'fail',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; detail: vm?`Inner version: ${vm[1]}`:'No VAST version in inner tag.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: (!vm||vm[1]!=='2.0')?'Inner tag must also be VAST 2.0.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const isAnotherWrapper = /&lt;Wrapper/i.test(raw)||/&lt;VASTAdTagURI/i.test(raw);
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Inner — Is Inline', status: isAnotherWrapper?'warn':'pass',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: isAnotherWrapper?'Inner tag is also a wrapper (multi-level chain).':'Inner tag is inline. ✓',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: isAnotherWrapper?'Request a flattened inline VAST. Nested wrappers increase timeout risk.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const hasMF = /&lt;MediaFile/i.test(raw);
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Inner — Video MediaFile', status: hasMF?'pass':'fail',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: hasMF?'MediaFile detected. ✓':'No &lt;MediaFile&gt; — ad will not render.',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: !hasMF?'Inner tag must have a &lt;MediaFile&gt; with a .mp4 URL.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const wm = raw.match(/width\s*=\s*["']?(\d+)["']?/i);
+			</p>
+			<p>
+				&#xa0; const hm = raw.match(/height\s*=\s*["']?(\d+)["']?/i);
+			</p>
+			<p>
+				&#xa0; const mW = wm?parseInt(wm[1]):null, mH = hm?parseInt(hm[1]):null;
+			</p>
+			<p>
+				&#xa0; if (!mW&amp;&amp;!mH) {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; checks.push({ name:'Inner — Dimensions (1080×1920)', status:'warn',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; detail:'Cannot detect dimensions. Verify externally.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; suggestion:'MediaFile must specify width="1080" height="1920".' });
+			</p>
+			<p>
+				&#xa0; } else {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const ok = mW===1080&amp;&amp;mH===1920;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; checks.push({ name:'Inner — Dimensions (1080×1920)', status: ok?'pass':'fail',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: ok?`${mW}×${mH} ✓`:`Detected ${mW||'?'}×${mH||'?'}. Required 1080×1920.`,</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; suggestion: !ok?'Request creative at exactly 1080×1920.':null });
+			</p>
+			<p>
+				&#xa0; }
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const iBlocked = extractDomains(raw).filter(d=&gt;!isDomainAllowed(d));
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Inner — Domain Allowlist', status: iBlocked.length?'fail':'pass',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: iBlocked.length?`Unapproved: ${iBlocked.join(', ')}`: 'All domains approved. ✓',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: iBlocked.length?`Remove unapproved domains: ${iBlocked.join(', ')}`:null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const httpC = (raw.match(/http:\/\//gi)||[]).length;
+			</p>
+			<p>
+				&#xa0; checks.push({ name:'Inner — HTTPS', status: httpC===0?'pass':'warn',
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">detail: httpC===0?'All HTTPS. ✓':`${httpC} HTTP URL(s) in inner tag.`,</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion: httpC&gt;0?'All inner tag URLs must use HTTPS.':null });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; return checks;
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// Quick summary for bulk table
+			</p>
+			<p>
+				function quickValidate(raw) {
+			</p>
+			<p>
+				&#xa0; const ver = extractVersion(raw);
+			</p>
+			<p>
+				&#xa0; const hasVAST = /&lt;VAST/i.test(raw);
+			</p>
+			<p>
+				&#xa0; if (hasVAST &amp;&amp; ver !== '2.0') return { status:'reject', ver, score:0, issues:['VAST version rejected: '+ver], wrapper:false, dims:'N/A' };
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const outer&#xa0;&#xa0; = runOuterChecks(raw, ver);
+			</p>
+			<p>
+				&#xa0; const hasWrap = /&lt;Wrapper/i.test(raw)||/&lt;VASTAdTagURI/i.test(raw);
+			</p>
+			<p>
+				&#xa0; const wrapChk = hasWrap ? runWrapperChecks(raw) : [];
+			</p>
+			<p>
+				&#xa0; const all&#xa0;&#xa0;&#xa0;&#xa0; = [...outer, ...wrapChk];
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const passed&#xa0; = all.filter(c=&gt;c.status==='pass').length;
+			</p>
+			<p>
+				&#xa0; const failed&#xa0; = all.filter(c=&gt;c.status==='fail').length;
+			</p>
+			<p>
+				&#xa0; const warned&#xa0; = all.filter(c=&gt;c.status==='warn').length;
+			</p>
+			<p>
+				&#xa0; const score&#xa0;&#xa0; = Math.round((passed/all.length)*100);
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; // Dimension detection
+			</p>
+			<p>
+				&#xa0; const wm = raw.match(/width\s*=\s*["']?(\d+)["']?/i);
+			</p>
+			<p>
+				&#xa0; const hm = raw.match(/height\s*=\s*["']?(\d+)["']?/i);
+			</p>
+			<p>
+				&#xa0; const mW = wm?parseInt(wm[1]):null, mH = hm?parseInt(hm[1]):null;
+			</p>
+			<p>
+				&#xa0; const dims = (mW&amp;&amp;mH) ? `${mW}×${mH}` : '?';
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const issues = all.filter(c=&gt;c.status==='fail'||c.status==='warn').map(c=&gt;({n:c.name,s:c.status}));
+			</p>
+			<p>
+				&#xa0; const overallStatus = failed&gt;0?'fail':warned&gt;0?'warn':'pass';
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; return { status:overallStatus, ver:ver||'?', score, issues, wrapper:hasWrap, dims };
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				// SINGLE TAG UI
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				document.getElementById('tagInput').addEventListener('input', function() {
+			</p>
+			<p>
+				&#xa0; const show = /&lt;Wrapper/i.test(this.value)||/&lt;VASTAdTagURI/i.test(this.value);
+			</p>
+			<p>
+				&#xa0; document.getElementById('wrapperInnerBox').classList.toggle('visible', show);
+			</p>
+			<p>
+				});
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function validateSingle() {
+			</p>
+			<p>
+				&#xa0; const raw = document.getElementById('tagInput').value.trim();
+			</p>
+			<p>
+				&#xa0; if (!raw) { alert('Please paste a VAST tag first.'); return; }
+			</p>
+			<p>
+				&#xa0; const ver = extractVersion(raw);
+			</p>
+			<p>
+				&#xa0; const hasVAST = /&lt;VAST/i.test(raw);
+			</p>
+			<p>
+				&#xa0; const rb = document.getElementById('rejectBanner');
+			</p>
+			<p>
+				&#xa0; const rm = document.getElementById('rejectMsg');
+			</p>
+			<p>
+				&#xa0; if (hasVAST &amp;&amp; ver !== '2.0') {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; rb.classList.add('visible');
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; rm.innerHTML = `&lt;strong&gt;Tag Rejected — VAST 2.0 Required&lt;/strong&gt;&lt;br&gt;Detected version: &lt;code&gt;${ver||'not specified'}&lt;/code&gt;. Only VAST 2.0 tags are accepted.&lt;br&gt;Request the vendor to provide a VAST 2.0 compliant tag.`;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.getElementById('singleResults').style.display='none';
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; rb.scrollIntoView({behavior:'smooth',block:'start'});
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; return;
+			</p>
+			<p>
+				&#xa0; }
+			</p>
+			<p>
+				&#xa0; rb.classList.remove('visible');
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; const outerChecks&#xa0;&#xa0; = runOuterChecks(raw, ver);
+			</p>
+			<p>
+				&#xa0; const hasWrapper&#xa0;&#xa0;&#xa0; = /&lt;Wrapper/i.test(raw)||/&lt;VASTAdTagURI/i.test(raw);
+			</p>
+			<p>
+				&#xa0; const wrapperChecks = hasWrapper ? runWrapperChecks(raw) : [];
+			</p>
+			<p>
+				&#xa0; const innerRaw&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; = document.getElementById('innerTagInput').value.trim();
+			</p>
+			<p>
+				&#xa0; const innerChecks&#xa0;&#xa0; = hasWrapper ? (innerRaw ? runInnerTagChecks(innerRaw) : [{
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; name:'Inner Tag Not Provided', status:'warn',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; detail:'Paste the resolved inner VAST tag in Step 2 to validate creative spec.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; suggestion:'Copy the inner VAST from your ad server and paste above, then re-validate.'
+			</p>
+			<p>
+				&#xa0; }]) : [];
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; renderSingleResults(outerChecks, wrapperChecks, innerChecks, hasWrapper);
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function renderSingleResults(outer, wrapper, inner, hasWrapper) {
+			</p>
+			<p>
+				&#xa0; const all = [...outer,...wrapper,...inner];
+			</p>
+			<p>
+				&#xa0; const passed=all.filter(c=&gt;c.status==='pass').length, failed=all.filter(c=&gt;c.status==='fail').length;
+			</p>
+			<p>
+				&#xa0; const warned=all.filter(c=&gt;c.status==='warn').length, infos=all.filter(c=&gt;c.status==='info').length;
+			</p>
+			<p>
+				&#xa0; const score=Math.round((passed/all.length)*100);
+			</p>
+			<p>
+				&#xa0; const sn=document.getElementById('scoreNum');
+			</p>
+			<p>
+				&#xa0; sn.textContent=score+'%';
+			</p>
+			<p>
+				&#xa0; sn.style.color=score&gt;=80?'var(--pass)':score&gt;=50?'var(--warn)':'var(--fail)';
+			</p>
+			<p>
+				&#xa0; document.getElementById('scoreRing').style.borderColor=sn.style.color;
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0; </span><span style="font-family:'Arial Unicode MS'">document.getElementById('resultTitle').textContent=failed?'Issues Found — Action Required':warned?'Passed with Warnings':'All Checks Passed ✓';</span>
+			</p>
+			<p>
+				&#xa0; document.getElementById('resultSubtitle').textContent=`${passed} passed · ${failed} failed · ${warned} warnings · ${infos} info · ${all.length} checks`;
+			</p>
+			<p>
+				&#xa0; document.getElementById('summaryBar').innerHTML=[
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; failed?`&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--fail)"&gt;&lt;/div&gt;${failed} Failed&lt;/div&gt;`:'',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; warned?`&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--warn)"&gt;&lt;/div&gt;${warned} Warnings&lt;/div&gt;`:'',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; passed?`&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--pass)"&gt;&lt;/div&gt;${passed} Passed&lt;/div&gt;`:'',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; infos?`&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--info)"&gt;&lt;/div&gt;${infos} Info&lt;/div&gt;`:'',
+			</p>
+			<p>
+				&#xa0; ].join('');
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0; </span><span style="font-family:'Arial Unicode MS'">const icons={pass:'✓',fail:'✕',warn:'⚠',info:'ℹ'};</span>
+			</p>
+			<p>
+				&#xa0; function rg(checks,id){
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.getElementById(id).innerHTML=checks.map(c=&gt;`
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="check-item ${c.status}"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="check-icon"&gt;${icons[c.status]}&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="check-content"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="check-name"&gt;${c.name}&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;div class="check-detail"&gt;${c.detail}&lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; ${c.suggestion?`&lt;div class="check-suggestion"&gt;&lt;strong&gt;💡 Suggested Fix&lt;/strong&gt;${c.suggestion}&lt;/div&gt;`:''}
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;`).join('');
+			</p>
+			<p>
+				&#xa0; }
+			</p>
+			<p>
+				&#xa0; rg(outer,'outerChecksGrid');
+			</p>
+			<p>
+				&#xa0; const ws=document.getElementById('wrapperChecksSection');
+			</p>
+			<p>
+				&#xa0; if(hasWrapper){ws.style.display='block';rg(wrapper,'wrapperChecksGrid');rg(inner,'innerChecksGrid');}else{ws.style.display='none';}
+			</p>
+			<p>
+				&#xa0; document.getElementById('wrapperStepsSection').innerHTML=hasWrapper?`
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="wrapper-box"&gt;&lt;div class="wrapper-title"&gt;🔗 Wrapper — Resolution Guide&lt;/div&gt;&lt;div class="steps"&gt;
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">${['Confirm &lt;code&gt;&amp;lt;VASTAdTagURI&amp;gt;&lt;/code&gt; is URL-encoded: &lt;code&gt;&amp;amp;&lt;/code&gt;→&lt;code&gt;%26&lt;/code&gt;, &lt;code&gt;=&lt;/code&gt;→&lt;code&gt;%3D&lt;/code&gt;.',</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; 'Use IAB Tech Lab VAST Inspector to trace redirect chain. DSPs allow up to &lt;code&gt;3–5&lt;/code&gt; hops.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; 'Paste resolved inner tag in Step 2 box and re-validate.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; 'Confirm inner tag has &lt;code&gt;&amp;lt;MediaFile&amp;gt;&lt;/code&gt; at &lt;strong&gt;1080×1920&lt;/strong&gt;.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; 'Verify all domains in both tags are on the allowlist.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; 'If chain exceeds 3 levels or has unapproved domains, request a &lt;strong&gt;flat inline VAST 2.0&lt;/strong&gt;.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; 'Test in staging DSP before production trafficking.',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; ].map((t,i)=&gt;`&lt;div class="step"&gt;&lt;div class="step-num"&gt;${i+1}&lt;/div&gt;&lt;div class="step-text"&gt;${t}&lt;/div&gt;&lt;/div&gt;`).join('')}
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;&lt;/div&gt;` : '';
+			</p>
+			<p>
+				&#xa0; document.getElementById('singleResults').style.display='block';
+			</p>
+			<p>
+				&#xa0; document.getElementById('singleResults').scrollIntoView({behavior:'smooth',block:'start'});
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function clearSingle() {
+			</p>
+			<p>
+				&#xa0; document.getElementById('tagInput').value='';
+			</p>
+			<p>
+				&#xa0; document.getElementById('innerTagInput').value='';
+			</p>
+			<p>
+				&#xa0; document.getElementById('wrapperInnerBox').classList.remove('visible');
+			</p>
+			<p>
+				&#xa0; document.getElementById('singleResults').style.display='none';
+			</p>
+			<p>
+				&#xa0; document.getElementById('rejectBanner').classList.remove('visible');
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function loadSample(type) {
+			</p>
+			<p>
+				&#xa0; if (type==='wrapper') {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.getElementById('tagInput').value=`&lt;VAST version="2.0"&gt;
+			</p>
+			<p>
+				&#xa0; &lt;Ad id="wrap-001"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;Wrapper fallbackOnNoAd="true"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;AdSystem&gt;SampleDSP&lt;/AdSystem&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;VASTAdTagURI&gt;&lt;![CDATA[https%3A%2F%2Fadserver.example.com%2Fvast%3Fid%3Dabc123%26cb%3D456789]]&gt;&lt;/VASTAdTagURI&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Impression&gt;&lt;![CDATA[https://track.myplatform.com/imp?id=wrap-001]]&gt;&lt;/Impression&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Creatives/&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/Wrapper&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/Ad&gt;
+			</p>
+			<p>
+				&lt;/VAST&gt;`;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.getElementById('innerTagInput').value=`&lt;VAST version="2.0"&gt;
+			</p>
+			<p>
+				&#xa0; &lt;Ad id="inline-001"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;InLine&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;AdSystem&gt;VendorAdServer&lt;/AdSystem&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;AdTitle&gt;Sample Creative&lt;/AdTitle&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Impression&gt;&lt;![CDATA[https://pixel.approvedvendor.com/imp?id=inline-001]]&gt;&lt;/Impression&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Creatives&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Creative&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Linear&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;MediaFiles&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;MediaFile width="1080" height="1920" type="video/mp4" delivery="progressive"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;![CDATA[https://cdn.example.com/creative_1080x1920.mp4]]&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/MediaFile&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/MediaFiles&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;VideoClicks&gt;&lt;ClickThrough&gt;&lt;![CDATA[https://www.advertiser.com]]&gt;&lt;/ClickThrough&gt;&lt;/VideoClicks&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/Linear&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/Creative&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/Creatives&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/InLine&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/Ad&gt;
+			</p>
+			<p>
+				&lt;/VAST&gt;`;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.getElementById('wrapperInnerBox').classList.add('visible');
+			</p>
+			<p>
+				&#xa0; } else {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.getElementById('tagInput').value=`&lt;VAST version="4.0"&gt;
+			</p>
+			<p>
+				&#xa0; &lt;Ad id="bad-001"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;InLine&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;AdSystem&gt;BadVendor&lt;/AdSystem&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Impression&gt;&lt;![CDATA[http://track.doubleclick.net/imp?id=001]]&gt;&lt;/Impression&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Creatives&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Creative&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;Linear&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;MediaFiles&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;MediaFile width="720" height="1280" type="video/mp4"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;![CDATA[https://cdn.example.com/wrong_size.mp4]]&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/MediaFile&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/MediaFiles&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/Linear&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/Creative&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/Creatives&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/InLine&gt;
+			</p>
+			<p>
+				&#xa0; &lt;/Ad&gt;
+			</p>
+			<p>
+				&lt;/VAST&gt;`;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.getElementById('innerTagInput').value='';
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.getElementById('wrapperInnerBox').classList.remove('visible');
+			</p>
+			<p>
+				&#xa0; }
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				// BULK VALIDATE
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				let bulkMode = 'file';
+			</p>
+			<p>
+				let parsedColumns = [];&#xa0; // [{header, values}]
+			</p>
+			<p>
+				let selectedColIndex = null;
+			</p>
+			<p>
+				let bulkResultsData = [];
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function setBulkMode(mode) {
+			</p>
+			<p>
+				&#xa0; bulkMode = mode;
+			</p>
+			<p>
+				&#xa0; document.getElementById('fileMode').style.display&#xa0;&#xa0; = mode==='file'&#xa0; ? 'block' : 'none';
+			</p>
+			<p>
+				&#xa0; document.getElementById('pasteMode').style.display&#xa0; = mode==='paste' ? 'block' : 'none';
+			</p>
+			<p>
+				&#xa0; document.getElementById('modeFileBtn').classList.toggle('active', mode==='file');
+			</p>
+			<p>
+				&#xa0; document.getElementById('modePasteBtn').classList.toggle('active', mode==='paste');
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// Drag-and-drop
+			</p>
+			<p>
+				const dz = document.getElementById('dropzone');
+			</p>
+			<p>
+				dz.addEventListener('dragover', e=&gt;{ e.preventDefault(); dz.classList.add('drag-over'); });
+			</p>
+			<p>
+				dz.addEventListener('dragleave', ()=&gt; dz.classList.remove('drag-over'));
+			</p>
+			<p>
+				dz.addEventListener('drop', e=&gt;{ e.preventDefault(); dz.classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function handleFile(file) {
+			</p>
+			<p>
+				&#xa0; if (!file) return;
+			</p>
+			<p>
+				&#xa0; document.getElementById('dzFileName').textContent = '📎 ' + file.name;
+			</p>
+			<p>
+				&#xa0; const ext = file.name.split('.').pop().toLowerCase();
+			</p>
+			<p>
+				&#xa0; const reader = new FileReader();
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; reader.onload = function(e) {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; let rows = [];
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; if (ext === 'csv') {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; rows = parseCSV(e.target.result);
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; } else {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; const wb = XLSX.read(e.target.result, {type:'array'});
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; const ws = wb.Sheets[wb.SheetNames[0]];
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; }
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; if (rows.length &lt; 2) { alert('File appears empty or could not be parsed.'); return; }
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; processRows(rows);
+			</p>
+			<p>
+				&#xa0; };
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; if (ext === 'csv') reader.readAsText(file);
+			</p>
+			<p>
+				&#xa0; else reader.readAsArrayBuffer(file);
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function parseCSV(text) {
+			</p>
+			<p>
+				&#xa0; const lines = text.split(/\r?\n/).filter(l=&gt;l.trim());
+			</p>
+			<p>
+				&#xa0; return lines.map(line =&gt; {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const cells = [];
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; let cur = '', inQ = false;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; for (let i=0; i&lt;line.length; i++) {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; if (line[i]==='"') { inQ=!inQ; }
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; else if (line[i]===','&amp;&amp;!inQ) { cells.push(cur.trim()); cur=''; }
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; else cur+=line[i];
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; }
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; cells.push(cur.trim());
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; return cells;
+			</p>
+			<p>
+				&#xa0; });
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function processRows(rows) {
+			</p>
+			<p>
+				&#xa0; const headers = rows[0].map((h,i)=&gt; h || `Column ${i+1}`);
+			</p>
+			<p>
+				&#xa0; parsedColumns = headers.map((h,i)=&gt;({
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; header: h,
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; values: rows.slice(1).map(r=&gt; (r[i]||'').toString().trim())
+			</p>
+			<p>
+				&#xa0; }));
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; // Auto-detect VAST columns
+			</p>
+			<p>
+				&#xa0; parsedColumns.forEach(col =&gt; {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; col.vastCount = col.values.filter(v =&gt; looksLikeVAST(v)).length;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; col.autoDetected = col.vastCount &gt; 0;
+			</p>
+			<p>
+				&#xa0; });
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; // Render column picker
+			</p>
+			<p>
+				&#xa0; const chips = document.getElementById('colChips');
+			</p>
+			<p>
+				&#xa0; chips.innerHTML = parsedColumns.map((col,i)=&gt;`
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;div class="col-chip ${col.autoDetected?'auto':''} ${selectedColIndex===i?'selected':''}"
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; onclick="selectColumn(${i})"
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; title="${col.vastCount} VAST tags detected"&gt;
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">${col.autoDetected?'✅ ':''}${col.header} ${col.autoDetected?`(${col.vastCount} tags)`:''}</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/div&gt;`).join('');
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; document.getElementById('colPicker').classList.add('visible');
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; // Auto-select best column
+			</p>
+			<p>
+				&#xa0; const best = parsedColumns.reduce((b,c,i)=&gt; c.vastCount &gt; (parsedColumns[b]||{vastCount:-1}).vastCount ? i : b, 0);
+			</p>
+			<p>
+				&#xa0; if (parsedColumns[best] &amp;&amp; parsedColumns[best].vastCount &gt; 0) selectColumn(best);
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function selectColumn(i) {
+			</p>
+			<p>
+				&#xa0; selectedColIndex = i;
+			</p>
+			<p>
+				&#xa0; document.querySelectorAll('.col-chip').forEach((c,idx)=&gt; c.classList.toggle('selected', idx===i));
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				async function runBulkValidation() {
+			</p>
+			<p>
+				&#xa0; let tags = [];
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; if (bulkMode === 'paste') {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; tags = document.getElementById('bulkPasteInput').value
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; .split('\n')
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; .map(l=&gt;l.trim())
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; .filter(l=&gt;l.length&gt;0);
+			</p>
+			<p>
+				&#xa0; } else {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; if (selectedColIndex === null) { alert('Please select the column containing VAST tags.'); return; }
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; tags = parsedColumns[selectedColIndex].values.filter(v=&gt;v.length&gt;0);
+			</p>
+			<p>
+				&#xa0; }
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; if (tags.length === 0) { alert('No tags found to validate.'); return; }
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; // Show progress
+			</p>
+			<p>
+				&#xa0; const pw = document.getElementById('progressWrap');
+			</p>
+			<p>
+				&#xa0; const pf = document.getElementById('progressFill');
+			</p>
+			<p>
+				&#xa0; const pl = document.getElementById('progressLabel');
+			</p>
+			<p>
+				&#xa0; pw.classList.add('visible');
+			</p>
+			<p>
+				&#xa0; document.getElementById('bulkResults').style.display='none';
+			</p>
+			<p>
+				&#xa0; bulkResultsData = [];
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; for (let i=0; i&lt;tags.length; i++) {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; await new Promise(r=&gt;setTimeout(r,0)); // yield to UI
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const pct = Math.round(((i+1)/tags.length)*100);
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; pf.style.width = pct+'%';
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; pl.textContent = `Validating ${i+1} of ${tags.length} tags… (${pct}%)`;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const result = quickValidate(tags[i]);
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; bulkResultsData.push({ idx: i+1, raw: tags[i], ...result });
+			</p>
+			<p>
+				&#xa0; }
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; pw.classList.remove('visible');
+			</p>
+			<p>
+				&#xa0; renderBulkTable(bulkResultsData);
+			</p>
+			<p>
+				&#xa0; document.getElementById('exportBtn').style.display='inline-flex';
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function renderBulkTable(data) {
+			</p>
+			<p>
+				&#xa0; const total&#xa0;&#xa0; = data.length;
+			</p>
+			<p>
+				&#xa0; const rejected= data.filter(d=&gt;d.status==='reject').length;
+			</p>
+			<p>
+				&#xa0; const failed&#xa0; = data.filter(d=&gt;d.status==='fail').length;
+			</p>
+			<p>
+				&#xa0; const warned&#xa0; = data.filter(d=&gt;d.status==='warn').length;
+			</p>
+			<p>
+				&#xa0; const passed&#xa0; = data.filter(d=&gt;d.status==='pass').length;
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; document.getElementById('bulkSummaryBar').innerHTML = [
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; `&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--muted)"&gt;&lt;/div&gt;${total} Total&lt;/div&gt;`,
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; passed&#xa0; ? `&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--pass)"&gt;&lt;/div&gt;${passed} Passed&lt;/div&gt;`&#xa0;&#xa0; : '',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; warned&#xa0; ? `&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--warn)"&gt;&lt;/div&gt;${warned} Warnings&lt;/div&gt;` : '',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; failed&#xa0; ? `&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--fail)"&gt;&lt;/div&gt;${failed} Failed&lt;/div&gt;`&#xa0;&#xa0; : '',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; rejected? `&lt;div class="summary-pill"&gt;&lt;div class="dot" style="background:var(--fail)"&gt;&lt;/div&gt;${rejected} Rejected&lt;/div&gt;`: '',
+			</p>
+			<p>
+				&#xa0; ].join('');
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0; renderTableRows(data);
+			</p>
+			<p>
+				&#xa0; document.getElementById('bulkResults').style.display='block';
+			</p>
+			<p>
+				&#xa0; document.getElementById('bulkResults').scrollIntoView({behavior:'smooth',block:'start'});
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function renderTableRows(data) {
+			</p>
+			<p>
+				&#xa0; const tbody = document.getElementById('bulkTableBody');
+			</p>
+			<p>
+				&#xa0; tbody.innerHTML = data.map(d =&gt; {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const preview = d.raw.replace(/&lt;/g,'&amp;lt;').replace(/&gt;/g,'&amp;gt;').substring(0,80);
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const statusBadge = {
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">pass:</span><span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">`&lt;span class="status-badge sb-pass"&gt;✓ Pass&lt;/span&gt;`,</span>
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">fail:</span><span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">`&lt;span class="status-badge sb-fail"&gt;✕ Fail&lt;/span&gt;`,</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; warn:&#xa0;&#xa0; `&lt;span class="status-badge sb-warn"&gt;⚠ Warn&lt;/span&gt;`,
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; reject: `&lt;span class="status-badge sb-reject"&gt;🚫 Rejected&lt;/span&gt;`,
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; }[d.status];
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const dimColor = d.dims==='1080×1920' ? 'var(--pass)' : d.dims==='?' ? 'var(--muted)' : 'var(--fail)';
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; const issueHtml = d.status==='reject'
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; ? `&lt;div class="fail-item f"&gt;VAST ${d.ver} rejected — not 2.0&lt;/div&gt;`
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; : d.issues.length===0
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">? '&lt;div class="fail-item" style="color:var(--pass)"&gt;No issues ✓&lt;/div&gt;'</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; : d.issues.slice(0,4).map(iss=&gt;`&lt;div class="fail-item ${iss.s==='fail'?'f':'w'}"&gt;
+			</p>
+			<p>
+				<span style="font-family:'Arial Unicode MS'">&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; </span><span style="font-family:'Arial Unicode MS'">${iss.s==='fail'?'✕':'⚠'} ${iss.n}</span>
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;/div&gt;`).join('') + (d.issues.length&gt;4?`&lt;div class="fail-item"&gt;+${d.issues.length-4} more…&lt;/div&gt;`:'');
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; return `&lt;tr class="tr-${d.status}" data-status="${d.status}" data-raw="${encodeURIComponent(d.raw.substring(0,200))}"&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;td style="color:var(--muted);font-family:'Space Mono',monospace;"&gt;${d.idx}&lt;/td&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;td&gt;&lt;div class="tag-preview"&gt;${preview}&lt;/div&gt;&lt;/td&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;td&gt;${statusBadge}&lt;/td&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;td class="score-cell" style="color:${d.score&gt;=80?'var(--pass)':d.score&gt;=50?'var(--warn)':'var(--fail)'}"&gt;${d.status==='reject'?'—':d.score+'%'}&lt;/td&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;td style="font-family:'Space Mono',monospace;font-size:11px;color:${d.ver==='2.0'?'var(--pass)':'var(--fail)'}"&gt;${d.ver}&lt;/td&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;td style="font-size:11px;"&gt;${d.wrapper?'&lt;span style="color:var(--info)"&gt;⚠ Wrapper&lt;/span&gt;':'&lt;span style="color:var(--muted)"&gt;Inline&lt;/span&gt;'}&lt;/td&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;td style="font-family:'Space Mono',monospace;font-size:11px;color:${dimColor}"&gt;${d.dims}&lt;/td&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0;&#xa0;&#xa0; &lt;td&gt;&lt;div class="fail-list"&gt;${issueHtml}&lt;/div&gt;&lt;/td&gt;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; &lt;/tr&gt;`;
+			</p>
+			<p>
+				&#xa0; }).join('');
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// Filter / search
+			</p>
+			<p>
+				let activeFilter = 'all';
+			</p>
+			<p>
+				function filterTable(filter, btn) {
+			</p>
+			<p>
+				&#xa0; if (filter !== 'search') {
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; activeFilter = filter;
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; document.querySelectorAll('.filter-btn').forEach(b=&gt;b.classList.remove('active'));
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; if (btn) btn.classList.add('active');
+			</p>
+			<p>
+				&#xa0; }
+			</p>
+			<p>
+				&#xa0; const search = document.getElementById('tableSearch').value.toLowerCase();
+			</p>
+			<p>
+				&#xa0; let filtered = bulkResultsData;
+			</p>
+			<p>
+				&#xa0; if (activeFilter !== 'all') filtered = filtered.filter(d=&gt;d.status===activeFilter);
+			</p>
+			<p>
+				&#xa0; if (search) filtered = filtered.filter(d=&gt; d.raw.toLowerCase().includes(search) || d.dims.includes(search) || d.ver.includes(search));
+			</p>
+			<p>
+				&#xa0; renderTableRows(filtered);
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// Export CSV
+			</p>
+			<p>
+				function exportCSV() {
+			</p>
+			<p>
+				&#xa0; if (!bulkResultsData.length) return;
+			</p>
+			<p>
+				&#xa0; const headers = ['#','Tag Preview','Status','Score','VAST Version','Wrapper','Dimensions','Issues'];
+			</p>
+			<p>
+				&#xa0; const rows = bulkResultsData.map(d=&gt;[
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; d.idx,
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; '"'+d.raw.substring(0,120).replace(/"/g,"'")+'"',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; d.status,
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; d.status==='reject'?'rejected':d.score+'%',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; d.ver,
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; d.wrapper?'Yes':'No',
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; d.dims,
+			</p>
+			<p>
+				&#xa0;&#xa0;&#xa0; '"'+(d.status==='reject'?'VAST version rejected':d.issues.map(i=&gt;i.n).join('; '))+'"'
+			</p>
+			<p>
+				&#xa0; ]);
+			</p>
+			<p>
+				&#xa0; const csv = [headers, ...rows].map(r=&gt;r.join(',')).join('\n');
+			</p>
+			<p>
+				&#xa0; const blob = new Blob([csv], {type:'text/csv'});
+			</p>
+			<p>
+				&#xa0; const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='vast_validation_results.csv'; a.click();
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				function clearBulk() {
+			</p>
+			<p>
+				&#xa0; document.getElementById('bulkPasteInput').value='';
+			</p>
+			<p>
+				&#xa0; document.getElementById('dzFileName').textContent='';
+			</p>
+			<p>
+				&#xa0; document.getElementById('fileInput').value='';
+			</p>
+			<p>
+				&#xa0; document.getElementById('colPicker').classList.remove('visible');
+			</p>
+			<p>
+				&#xa0; document.getElementById('bulkResults').style.display='none';
+			</p>
+			<p>
+				&#xa0; document.getElementById('exportBtn').style.display='none';
+			</p>
+			<p>
+				&#xa0; document.getElementById('progressWrap').classList.remove('visible');
+			</p>
+			<p>
+				&#xa0; bulkResultsData=[];
+			</p>
+			<p>
+				&#xa0; parsedColumns=[];
+			</p>
+			<p>
+				&#xa0; selectedColIndex=null;
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				// TABS + INIT
+			</p>
+			<p>
+				// ════════════════════════════════════════════════════
+			</p>
+			<p>
+				function switchTab(id, btn) {
+			</p>
+			<p>
+				&#xa0; document.querySelectorAll('.tab-panel').forEach(p=&gt;p.classList.remove('active'));
+			</p>
+			<p>
+				&#xa0; document.querySelectorAll('.tab-btn').forEach(b=&gt;b.classList.remove('active'));
+			</p>
+			<p>
+				&#xa0; document.getElementById('tab-'+id).classList.add('active');
+			</p>
+			<p>
+				&#xa0; btn.classList.add('active');
+			</p>
+			<p>
+				}
+			</p>
+			<p>
+				&#xa0;
+			</p>
+			<p>
+				// Init allowlists
+			</p>
+			<p>
+				renderAllowlistInto('allowlist-single');
+			</p>
+			<p>
+				renderAllowlistInto('allowlist-bulk');
+			</p>
+			<p>
+				&lt;/script&gt;
+			</p>
+			<p>
+				&lt;/body&gt;
+			</p>
+			<p>
+				&lt;/html&gt;
+			</p>
+	<p style="bottom: 10px; right: 10px; position: absolute;"><a href="https://wordtohtml.net/?utm_source=wth_free_doc_conversion_link&utm_medium=external" target="_blank" style="font-size:11px; color: #d0d0d0">Converted to HTML with WordToHTML.net</a><span style="font-size:11px; color: #d0d0d0"> | </span><a href="https://documentconverter.pro/?utm_source=wth_free_doc_conversion_link&utm_medium=external" target="_blank" style="font-size:11px; color: #d0d0d0">Document Converter for Windows</a></p>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"4581d6a58cf94e929fad52deda295622","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
