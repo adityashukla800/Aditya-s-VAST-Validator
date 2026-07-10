@@ -429,11 +429,22 @@ tr:hover td{background:rgba(255,255,255,.02);}
 // ════════════════════════════════════════════════════
 // ALLOWLIST
 // ════════════════════════════════════════════════════
-let allowedDomains = [
+const DEFAULT_ALLOWLIST = [
   'cdn.example.com','adserver.example.com',
   'track.myplatform.com','measure.internalads.com',
   'pixel.approvedvendor.com'
 ];
+function loadAllowlist() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('vv_allowlist'));
+    if (Array.isArray(saved) && saved.length) return saved;
+  } catch(e){}
+  return [...DEFAULT_ALLOWLIST];
+}
+function saveAllowlist() {
+  try { localStorage.setItem('vv_allowlist', JSON.stringify(allowedDomains)); } catch(e){}
+}
+let allowedDomains = loadAllowlist();
 
 function renderAllowlistInto(containerId) {
   const el = document.getElementById(containerId);
@@ -477,11 +488,12 @@ function toggleList(containerId) {
 function addAllowed(containerId) {
   const input = document.getElementById('ai-'+containerId);
   const val = input.value.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/\/.*$/,'');
-  if (val && !allowedDomains.includes(val)) { allowedDomains.push(val); renderAllowedPills(containerId); }
+  if (val && !allowedDomains.includes(val)) { allowedDomains.push(val); saveAllowlist(); renderAllowedPills(containerId); }
   input.value = '';
 }
 function removeAllowed(i) {
   allowedDomains.splice(i,1);
+  saveAllowlist();
   renderAllowedPills('allowlist-single');
   renderAllowedPills('allowlist-bulk');
 }
@@ -489,13 +501,39 @@ function removeAllowed(i) {
 // ════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 function extractDomains(str) {
   const m = str.match(/https?:\/\/([a-z0-9.\-]+)/gi) || [];
   return [...new Set(m.map(u=>{ try{return new URL(u).hostname.toLowerCase();}catch(e){return null;} }).filter(Boolean))];
 }
 function isDomainAllowed(d) { return allowedDomains.some(a => d===a || d.endsWith('.'+a)); }
 function isEncoded(str) {
-  return /%[0-9A-Fa-f]{2}/.test(str) && !(/[<>]/.test(str) || (/&(?!amp;|lt;|gt;|quot;|apos;)/.test(str) && !/%26/.test(str)));
+  // Must contain at least one percent-encoded sequence...
+  if (!/%[0-9A-Fa-f]{2}/.test(str)) return false;
+  // ...and must NOT contain bare XML-breaking characters that should have been encoded.
+  if (/[<>]/.test(str)) return false;
+  // A bare & that is not part of a valid XML entity means encoding is incomplete.
+  if (/&(?!(amp|lt|gt|quot|apos|#\d+);)/.test(str)) return false;
+  return true;
+}
+function isWellFormedXML(raw) {
+  try {
+    const doc = new DOMParser().parseFromString(raw, 'application/xml');
+    return !doc.querySelector('parsererror');
+  } catch(e){ return false; }
+}
+// Detect creative dimensions from within the <MediaFile> tag rather than
+// matching width/height anywhere in the document.
+function detectDimensions(raw) {
+  const mf = raw.match(/<MediaFile\b[^>]*>/i);
+  const scope = mf ? mf[0] : raw;
+  const wm = scope.match(/width\s*=\s*["']?(\d+)/i);
+  const hm = scope.match(/height\s*=\s*["']?(\d+)/i);
+  return { w: wm?parseInt(wm[1]):null, h: hm?parseInt(hm[1]):null };
 }
 function looksLikeVAST(str) {
   return /<VAST/i.test(str) || /VASTAdTagURI/i.test(str) || /^https?:\/\/.+/i.test(str.trim());
@@ -513,6 +551,14 @@ function runOuterChecks(raw, ver) {
   checks.push({ name:'VAST Version 2.0', status: ver==='2.0'?'pass':'fail',
     detail: ver ? `Detected: VAST ${ver}` : 'No VAST version attribute found.',
     suggestion: ver!=='2.0' ? 'Request a VAST 2.0 tag. Other versions are rejected.' : null });
+
+  // Only meaningful when the input actually contains XML markup (skip for bare URLs).
+  if (/<[a-z]/i.test(raw)) {
+    const wf = isWellFormedXML(raw);
+    checks.push({ name:'XML Well-Formed', status: wf?'pass':'fail',
+      detail: wf?'Parses as valid XML. ✓':'XML is malformed — parser reported an error.',
+      suggestion: !wf?'Fix unclosed tags, stray "&", or invalid characters before trafficking.':null });
+  }
 
   const hasVapaid = /vapaid/i.test(raw);
   checks.push({ name:'VAPAID Attribute', status: hasVapaid?'fail':'pass',
@@ -595,9 +641,7 @@ function runInnerTagChecks(raw) {
     detail: hasMF?'MediaFile detected. ✓':'No <MediaFile> — ad will not render.',
     suggestion: !hasMF?'Inner tag must have a <MediaFile> with a .mp4 URL.':null });
 
-  const wm = raw.match(/width\s*=\s*["']?(\d+)["']?/i);
-  const hm = raw.match(/height\s*=\s*["']?(\d+)["']?/i);
-  const mW = wm?parseInt(wm[1]):null, mH = hm?parseInt(hm[1]):null;
+  const { w: mW, h: mH } = detectDimensions(raw);
   if (!mW&&!mH) {
     checks.push({ name:'Inner — Dimensions (1080×1920)', status:'warn',
       detail:'Cannot detect dimensions. Verify externally.',
@@ -631,17 +675,18 @@ function quickValidate(raw) {
   const outer   = runOuterChecks(raw, ver);
   const hasWrap = /<Wrapper/i.test(raw)||/<VASTAdTagURI/i.test(raw);
   const wrapChk = hasWrap ? runWrapperChecks(raw) : [];
-  const all     = [...outer, ...wrapChk];
+  // Inline tags carry the creative directly, so validate the MediaFile spec here.
+  // (Wrapper rows can't be resolved in bulk — the inner tag isn't available.)
+  const creativeChk = (!hasWrap && /<MediaFile/i.test(raw)) ? runInnerTagChecks(raw) : [];
+  const all     = [...outer, ...wrapChk, ...creativeChk];
 
   const passed  = all.filter(c=>c.status==='pass').length;
   const failed  = all.filter(c=>c.status==='fail').length;
   const warned  = all.filter(c=>c.status==='warn').length;
   const score   = Math.round((passed/all.length)*100);
 
-  // Dimension detection
-  const wm = raw.match(/width\s*=\s*["']?(\d+)["']?/i);
-  const hm = raw.match(/height\s*=\s*["']?(\d+)["']?/i);
-  const mW = wm?parseInt(wm[1]):null, mH = hm?parseInt(hm[1]):null;
+  // Dimension detection (scoped to the MediaFile tag)
+  const { w: mW, h: mH } = detectDimensions(raw);
   const dims = (mW&&mH) ? `${mW}×${mH}` : '?';
 
   const issues = all.filter(c=>c.status==='fail'||c.status==='warn').map(c=>({n:c.name,s:c.status}));
@@ -706,13 +751,14 @@ function renderSingleResults(outer, wrapper, inner, hasWrapper) {
   ].join('');
   const icons={pass:'✓',fail:'✕',warn:'⚠',info:'ℹ'};
   function rg(checks,id){
+    // Check content can echo untrusted tag data (domains, URIs) — escape it.
     document.getElementById(id).innerHTML=checks.map(c=>`
       <div class="check-item ${c.status}">
         <div class="check-icon">${icons[c.status]}</div>
         <div class="check-content">
-          <div class="check-name">${c.name}</div>
-          <div class="check-detail">${c.detail}</div>
-          ${c.suggestion?`<div class="check-suggestion"><strong>💡 Suggested Fix</strong>${c.suggestion}</div>`:''}
+          <div class="check-name">${escapeHtml(c.name)}</div>
+          <div class="check-detail">${escapeHtml(c.detail)}</div>
+          ${c.suggestion?`<div class="check-suggestion"><strong>💡 Suggested Fix</strong>${escapeHtml(c.suggestion)}</div>`:''}
         </div>
       </div>`).join('');
   }
@@ -826,39 +872,25 @@ dz.addEventListener('drop', e=>{ e.preventDefault(); dz.classList.remove('drag-o
 function handleFile(file) {
   if (!file) return;
   document.getElementById('dzFileName').textContent = '📎 ' + file.name;
-  const ext = file.name.split('.').pop().toLowerCase();
   const reader = new FileReader();
 
   reader.onload = function(e) {
     let rows = [];
-    if (ext === 'csv') {
-      rows = parseCSV(e.target.result);
-    } else {
+    try {
+      // SheetJS parses CSV, XLSX and XLS from an array buffer and correctly
+      // handles quoted commas and embedded newlines.
       const wb = XLSX.read(e.target.result, {type:'array'});
       const ws = wb.Sheets[wb.SheetNames[0]];
       rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+    } catch(err) {
+      alert('Could not parse file: ' + err.message);
+      return;
     }
     if (rows.length < 2) { alert('File appears empty or could not be parsed.'); return; }
     processRows(rows);
   };
 
-  if (ext === 'csv') reader.readAsText(file);
-  else reader.readAsArrayBuffer(file);
-}
-
-function parseCSV(text) {
-  const lines = text.split(/\r?\n/).filter(l=>l.trim());
-  return lines.map(line => {
-    const cells = [];
-    let cur = '', inQ = false;
-    for (let i=0; i<line.length; i++) {
-      if (line[i]==='"') { inQ=!inQ; }
-      else if (line[i]===','&&!inQ) { cells.push(cur.trim()); cur=''; }
-      else cur+=line[i];
-    }
-    cells.push(cur.trim());
-    return cells;
-  });
+  reader.readAsArrayBuffer(file);
 }
 
 function processRows(rows) {
